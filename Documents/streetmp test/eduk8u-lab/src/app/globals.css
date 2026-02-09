@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #050511;
+  --color-foreground: #ededed;
+
+  --color-nebula-100: #e6e6fa;
+  --color-nebula-500: #6a5acd;
+  --color-nebula-900: #0b0b1a;
+
+  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-glass-highlight: rgba(255, 255, 255, 0.05);
+
+  --color-accent-glow: #00ff9d;
+  --color-accent-gold: #ffd700;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-warp: warp 0.5s ease-out forwards;
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes warp {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    100% {
+      transform: scale(3);
+      opacity: 0;
+    }
+  }
+
+  --backdrop-blur-xl: 24px;
+}
+
+/* Custom Utilities */
+@utility glass-card {
+  @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg relative overflow-hidden;
+}
+
+@utility glass-input {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-mono text-sm placeholder:text-gray-500;
+}
+
+@utility glass-button {
+  @apply bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 rounded-full px-6 py-2 transition-all active:scale-[0.98] font-medium tracking-wide shadow-glow;
+}
+
+@utility haptic-slider-track {
+  @apply h-2 bg-white/10 rounded-full overflow-hidden relative cursor-pointer;
+}
+
+@utility haptic-slider-fill {
+  @apply h-full bg-gradient-to-r from-indigo-500 to-cyan-400 shadow-[0_0_10px_#6366f180];
+}
+
+@utility haptic-slider-thumb {
+  @apply w-6 h-6 bg-white rounded-full shadow-lg absolute top-1/2 -translate-y-1/2 -translate-x-1/2 cursor-grab active:cursor-grabbing border-2 border-indigo-500 transition-transform active:scale-110;
+}
+
+@utility shadow-glow {
+  box-shadow: 0 0 15px rgba(106, 90, 205, 0.3);
+}
+
+@utility text-shadow-glow {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Base Styles */
+:root {
+  --background: #050511;
+  --foreground: #ededed;
+  --primary-glow: rgba(106, 90, 205, 0.5);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  @apply antialiased overflow-x-hidden;
+  /* Deep Nebula ambient light */
+  background-image:
+    radial-gradient(at 0% 0%, rgba(106, 90, 205, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(93, 222, 199, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 215, 0, 0.05) 0px, transparent 50%);
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.1), transparent 40%);
+  border-radius: inherit;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
