@@ -142,7 +142,16 @@ export default function ResumeStudioPage() {
                             </div>
                             <div className="flex-1">
                                 <h4 className="text-sm font-bold text-white mb-1">AI Insight: Boost Your IPO Score</h4>
-                                <p className="text-xs text-gray-300 mb-2">Your resume feels incomplete. Adding at least <span className="font-bold text-white">3 more sections</span> (e.g., Certifications, Languages, Volunteering) could increase your valuation by <span className="text-emerald-400 font-bold">+$250k</span>.</p>
+                                <p className="text-xs text-gray-300 mb-2">
+                                    {sections.length < 3
+                                        ? <span>Your resume is looking thin. Add at least <span className="font-bold text-white">3 sections</span> to see your valuation climb.</span>
+                                        : !sections.find(s => s.id === 'experience')
+                                            ? <span>Missing <span className="font-bold text-white">Work Experience</span>? This is the #1 driver of your IPO Score. Add it now!</span>
+                                            : !sections.find(s => s.id === 'education')
+                                                ? <span>Don&apos;t forget <span className="font-bold text-white">Education</span>. Even partial degrees count towards your Knowledge Capital.</span>
+                                                : <span>Great start! specialized sections like <span className="font-bold text-white">Volunteering</span> or <span className="font-bold text-white">Awards</span> can add the final +$50k to your valuation.</span>
+                                    }
+                                </p>
                                 <button
                                     onClick={handleAddSection}
                                     className="text-xs font-bold text-black bg-accent-glow px-3 py-1.5 rounded hover:bg-white transition-colors flex items-center gap-1"

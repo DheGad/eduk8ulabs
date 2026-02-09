@@ -3,13 +3,22 @@
 import { useState } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { GlowingButton } from "@/components/ui/GlowingButton";
-import { Users, Shield, Crown, Zap, CheckCircle, Lock, Briefcase, GraduationCap, DollarSign, Search } from "lucide-react";
+import { Users, Shield, Crown, Zap, CheckCircle, Lock, Briefcase, GraduationCap, DollarSign, Search, TrendingUp } from "lucide-react";
 import { useSimulation } from "@/context/SimulationContext";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface Message {
+    id: number;
+    user: string;
+    text: string;
+    time: string;
+    avatar: string;
+    role: string;
+}
+
 export default function CommunityPage() {
     const { ipoScore } = useSimulation();
-    const [activeTab, setActiveTab] = useState<'tiers' | 'bounties' | 'mentors' | 'chat'>('tiers');
+    const [activeTab, setActiveTab] = useState<'tiers' | 'bounties' | 'mentors' | 'chat' | 'insights'>('tiers');
     const [messages, setMessages] = useState<Message[]>([
         { id: 1, user: "Dr. Elena Volt", text: "Has anyone modeled the impact of the new 'Global Nomad' visa on their IPO score?", time: "2m ago", avatar: "E", role: "Visionary" },
         { id: 2, user: "Marcus Chen", text: "Yes, it added about 12% to my projected LTV. Highly recommend looking into it.", time: "1m ago", avatar: "M", role: "Visionary" },

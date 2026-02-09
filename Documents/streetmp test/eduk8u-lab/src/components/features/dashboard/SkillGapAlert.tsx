@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { AlertTriangle, PlusCircle, Loader2, CheckCircle } from "lucide-react";
+import { AlertTriangle, Loader2, CheckCircle } from "lucide-react";
 
 export const SkillGapAlert = () => {
     const [gaps, setGaps] = useState([
@@ -37,7 +37,6 @@ export const SkillGapAlert = () => {
                     <div key={gap.id} className="p-3 bg-black/40 rounded-lg flex items-center justify-between border border-white/5 relative overflow-hidden group">
                         {gap.status === 'closing' && (
                             <motion.div
-                                layoutId={`progress-${gap.id}`}
                                 className="absolute inset-0 bg-emerald-500/20 z-0"
                                 initial={{ width: 0 }}
                                 animate={{ width: "100%" }}

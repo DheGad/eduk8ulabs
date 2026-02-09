@@ -1,11 +1,13 @@
 "use client";
 
+import React from "react";
 import { motion, HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface GlowingButtonProps extends Omit<HTMLMotionProps<"button">, "ref"> {
     variant?: "primary" | "secondary";
     gradient?: boolean;
+    children: React.ReactNode;
 }
 
 export const GlowingButton = ({

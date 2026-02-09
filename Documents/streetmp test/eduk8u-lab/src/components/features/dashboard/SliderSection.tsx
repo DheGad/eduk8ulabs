@@ -41,7 +41,7 @@ export function SliderSection() {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: "100%" }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-black/90 backdrop-blur-xl border-l border-white/10 z-50 p-6 overflow-y-auto shadow-2xl custom-scrollbar flex flex-col"
+                            className="fixed top-0 right-0 h-full w-full sm:w-[400px] bg-black/95 backdrop-blur-xl border-l border-white/10 z-[100] p-6 overflow-y-auto shadow-2xl custom-scrollbar flex flex-col"
                         >
                             <div className="flex justify-between items-center mb-8 sticky top-0 bg-black/90 py-4 z-10 border-b border-white/5 shrink-0">
                                 <h2 className="text-xl font-bold flex items-center gap-2 text-white">
@@ -74,7 +74,7 @@ export function SliderSection() {
                                             max={slider.max}
                                             step={slider.step}
                                             value={profile.sliders[slider.key as keyof typeof profile.sliders] || 0}
-                                            onChange={(e) => updateSlider(slider.key as any, Number(e.target.value))}
+                                            onChange={(e) => updateSlider(slider.key as keyof typeof profile.sliders, Number(e.target.value))}
                                             className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-accent-glow hover:accent-indigo-400 transition-all touch-none"
                                         />
                                     </div>
