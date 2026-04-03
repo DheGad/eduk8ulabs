@@ -464,7 +464,7 @@ export default function HomePage() {
       {/* ── Massive Attractive CTA ──────────────────────────────── */}
       <section className="py-20 lg:py-32 px-6 border-t border-white/[0.04] bg-[#0A0A0A] relative overflow-hidden">
         {/* Massive ambient glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[400px] bg-emerald-600/10 blur-[150px] rounded-full point-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[400px] bg-emerald-600/10 blur-[150px] rounded-full pointer-events-none" />
         
         <div className="relative z-10 mx-auto max-w-4xl text-center flex flex-col items-center gap-8">
           <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 mb-2">
