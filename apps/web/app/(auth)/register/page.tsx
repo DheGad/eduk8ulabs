@@ -145,106 +145,65 @@ export default function RegisterPage() {
         </p>
       </div>
 
-      {/* Role selector */}
-      <RoleSelector role={role} onChange={setRole} />
-
-      {/* Error */}
-      {error && <ErrorBanner message={error} />}
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        <InputField
-          id="name"
-          label="Full Name"
-          type="text"
-          placeholder="Jane Smith"
-          value={name}
-          onChange={setName}
-          autoComplete="name"
-          disabled={loading}
-        />
-        <InputField
-          id="email"
-          label="Email Address"
-          type="email"
-          placeholder="you@company.com"
-          value={email}
-          onChange={setEmail}
-          autoComplete="email"
-          disabled={loading}
-        />
-        <InputField
-          id="password"
-          label="Password"
-          type="password"
-          placeholder="Min. 8 characters"
-          value={password}
-          onChange={setPassword}
-          autoComplete="new-password"
-          disabled={loading}
-          hint={password.length > 0 && password.length < 8 ? `${8 - password.length} more characters needed` : undefined}
-        />
-
-        {/* Password strength bar */}
-        {password.length > 0 && (
-          <div className="flex gap-1 mt-1">
-            {[...Array(4)].map((_, i) => {
-              const strength = Math.min(Math.floor(password.length / 3), 4);
-              const colors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-emerald-500"];
-              return (
-                <div
-                  key={i}
-                  className="h-0.5 flex-1 rounded-full transition-all duration-300"
-                  style={{ background: i < strength ? undefined : "rgba(255,255,255,0.06)" }}
-                >
-                  {i < strength && <div className={`h-full w-full rounded-full ${colors[strength - 1]}`} />}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        <div className="pt-1">
-          <button
-            type="submit"
-            disabled={loading || !canSubmit}
-            className="group relative w-full overflow-hidden rounded-xl py-3 text-sm font-semibold text-white transition-all duration-200 disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-            style={{
-              background: role === "engineer"
-                ? "linear-gradient(135deg, rgba(16,185,129,0.6) 0%, rgba(5,150,105,0.8) 100%)"
-                : "linear-gradient(135deg, rgba(139,92,246,0.7) 0%, rgba(124,58,237,0.9) 100%)",
-              border: role === "engineer"
-                ? "1px solid rgba(16,185,129,0.4)"
-                : "1px solid rgba(139,92,246,0.4)",
-            }}
-          >
-            <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background: "rgba(255,255,255,0.05)" }} />
-            <span className="relative flex items-center justify-center gap-2">
-              {loading ? (
-                <>
-                  <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                  Creating account…
-                </>
-              ) : role === "engineer" ? "Join as Engineer ⚡" : "Join as Client 🚀"}
-            </span>
-          </button>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <RoleSelector role={role} onChange={setRole} />
+        
+        <div className="space-y-4">
+          <InputField
+            id="name"
+            label="Full Name"
+            type="text"
+            placeholder="Jane Doe"
+            value={name}
+            onChange={setName}
+            autoComplete="name"
+            disabled={loading}
+          />
+          <InputField
+            id="email"
+            label="Work Email"
+            type="email"
+            placeholder="jane@company.com"
+            value={email}
+            onChange={setEmail}
+            autoComplete="email"
+            disabled={loading}
+          />
+          <InputField
+            id="password"
+            label="Password"
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={setPassword}
+            autoComplete="new-password"
+            hint="Must be at least 8 characters"
+            disabled={loading}
+          />
         </div>
 
-        <p className="text-center text-[10px] text-zinc-600 leading-relaxed">
-          By creating an account you agree to our{" "}
-          <a href="/terms" className="text-zinc-500 hover:text-zinc-400 transition-colors">Terms of Service</a>
-          {" "}and{" "}
-          <a href="/privacy" className="text-zinc-500 hover:text-zinc-400 transition-colors">Privacy Policy</a>.
-        </p>
-      </form>
+        {error && <ErrorBanner message={error} />}
 
-      {/* Divider */}
-      <div className="flex items-center gap-3">
-        <div className="flex-1 border-t border-white/[0.06]" />
-        <span className="text-[10px] text-zinc-600 uppercase tracking-widest">or</span>
-        <div className="flex-1 border-t border-white/[0.06]" />
-      </div>
+        <button
+          type="submit"
+          disabled={!canSubmit || loading}
+          className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-emerald-500 px-4 py-3.5 text-sm font-bold text-black transition-all hover:bg-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <span className="flex items-center gap-2">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-black/20 border-t-black"></span>
+              Creating Account...
+            </span>
+          ) : (
+            <>
+              Initialize OS Account
+              <svg className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </>
+          )}
+        </button>
+      </form>
 
       {/* Login link */}
       <p className="text-center text-sm text-zinc-500">

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { TrustLogos } from "../components/TrustLogos";
 import { EnterpriseFAQ } from "../components/EnterpriseFAQ";
 import { PricingGrid } from "../components/PricingGrid";
+import { FloatingChatbot } from "../components/FloatingChatbot";
 
 // ================================================================
 // ENTERPRISE AI GATEWAY DEMO (Formerly Glass Box)
@@ -193,12 +194,12 @@ export default function HomePage() {
         <div className="relative z-10 mx-auto max-w-7xl w-full grid lg:grid-cols-2 gap-16 items-center">
           {/* Left column: copy */}
           <div className={`flex flex-col gap-8 transition-all duration-1000 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <h1 className="text-6xl sm:text-7xl lg:text-[84px] font-bold leading-[1.05] tracking-tighter">
+            <h1 className="text-5xl sm:text-7xl lg:text-[84px] font-bold leading-[1.05] tracking-tighter">
               AI Power. <br/>
               <span className="text-emerald-400 inline-block mt-2">Zero Risk.</span>
             </h1>
 
-            <p className="text-xl text-zinc-400 leading-relaxed max-w-[560px] font-medium">
+            <p className="text-lg sm:text-xl text-zinc-400 leading-relaxed max-w-[560px] font-medium">
               Empower your employees to use the world's most intelligent AI models without exposing your company’s private data. We build a cryptographic shield around your business so you can innovate fearlessly.
             </p>
 
@@ -269,9 +270,9 @@ export default function HomePage() {
       </div>
 
       {/* ── Why The World Needs This ────────────────────────────── */}
-      <section id="why-it-matters" className="relative py-32 px-6 bg-[#080808]">
+      <section id="why-it-matters" className="relative py-20 lg:py-32 px-6 bg-[#080808]">
         <div className="mx-auto max-w-7xl">
-          <div className="grid lg:grid-cols-2 gap-20 items-center">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="order-2 lg:order-1 relative">
               <div className="absolute inset-0 bg-emerald-500/10 blur-[100px] rounded-full" />
               <div className="relative rounded-3xl border border-white/[0.08] bg-zinc-950/80 p-10 shadow-2xl">
@@ -300,10 +301,10 @@ export default function HomePage() {
             </div>
 
             <div className="order-1 lg:order-2">
-              <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-6 leading-tight">
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-6 leading-tight">
                 The biggest barrier to AI adoption is <span className="text-emerald-400">Trust.</span>
               </h2>
-              <p className="text-xl text-zinc-400 leading-relaxed mb-8">
+              <p className="text-lg sm:text-xl text-zinc-400 leading-relaxed mb-8">
                 Your proprietary data is your most valuable asset. But sending it to public AI models exposes you to data leaks, compliance violations, and intellectual property theft.
               </p>
               
@@ -330,18 +331,18 @@ export default function HomePage() {
       </section>
 
       {/* ── Architecture (How It Works) ─────────────────────────── */}
-      <section id="architecture" className="relative py-32 px-6 border-t border-white/[0.04] bg-[#0A0A0A]">
+      <section id="architecture" className="relative py-20 lg:py-32 px-6 border-t border-white/[0.04] bg-[#0A0A0A]">
         <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-4">
+          <div className="text-center mb-16 lg:mb-20">
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-4">
               How the Shield Works
             </h2>
-            <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto">
               A transparent, zero-trust pipeline that protects your data at every millisecond of execution.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 step: "01",
@@ -398,14 +399,14 @@ export default function HomePage() {
       </section>
 
       {/* ── Why StreetMP? — 4 Pillars ─────────────────────────── */}
-      <section className="relative py-32 px-6 border-t border-white/[0.04] bg-[#070707]">
+      <section className="relative py-20 lg:py-32 px-6 border-t border-white/[0.04] bg-[#070707]">
         <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-20">
+          <div className="text-center mb-16 lg:mb-20">
             <p className="text-xs font-bold text-emerald-500 tracking-[0.3em] uppercase mb-4">The Foundation</p>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-white mb-4">Why StreetMP?</h2>
-            <p className="text-xl text-zinc-400 max-w-2xl mx-auto">Four engineering pillars that no other AI platform can match.</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-4">Why StreetMP?</h2>
+            <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto">Four engineering pillars that no other AI platform can match.</p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 icon: "🛡️",
@@ -461,7 +462,7 @@ export default function HomePage() {
       <EnterpriseFAQ />
 
       {/* ── Massive Attractive CTA ──────────────────────────────── */}
-      <section className="py-32 px-6 border-t border-white/[0.04] bg-[#0A0A0A] relative overflow-hidden">
+      <section className="py-20 lg:py-32 px-6 border-t border-white/[0.04] bg-[#0A0A0A] relative overflow-hidden">
         {/* Massive ambient glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[400px] bg-emerald-600/10 blur-[150px] rounded-full point-events-none" />
         
@@ -469,7 +470,7 @@ export default function HomePage() {
           <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30 mb-2">
             <span className="text-emerald-400 text-2xl">🛡️</span>
           </div>
-          <h2 className="text-5xl md:text-7xl font-bold tracking-tighter text-white leading-tight">
+          <h2 className="text-4xl md:text-7xl font-bold tracking-tighter text-white leading-tight">
             Secure your Enterprise AI today.
           </h2>
           <p className="text-xl text-zinc-400 font-medium max-w-2xl">
@@ -518,6 +519,8 @@ export default function HomePage() {
           <span>© 2026 StreetMP. All rights reserved.</span>
         </div>
       </footer>
+
+      <FloatingChatbot />
     </div>
   );
 }
