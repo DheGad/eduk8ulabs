@@ -1,0 +1,189 @@
+# =============================================================
+# Streetmp OS — Caddyfile
+# Production Reverse Proxy with Automatic HTTPS (Let's Encrypt)
+# =============================================================
+#
+# Caddy automatically:
+#   1. Obtains and renews TLS certificates from Let's Encrypt
+#   2. Redirects all HTTP traffic to HTTPS (301)
+#   3. Serves TLS 1.2+ only (TLS 1.0/1.1 disabled)
+#
+# Rate limiting uses the caddy-ratelimit module.
+# To enable, build Caddy with: xcaddy build --with github.com/mholt/caddy-ratelimit
+# OR use the pre-built image: ghcr.io/mholt/caddy-ratelimit:latest
+# =============================================================
+
+# Global options
+{
+    # Email for Let's Encrypt notifications (change to yours)
+    email ops@streetmp.com
+
+    # Disable the Caddy admin API in production (security hardening)
+    admin off
+
+    # Use ACME production endpoint (not staging)
+    # acme_ca https://acme-v02.api.letsencrypt.org/directory
+
+    # Logging
+    log {
+        level INFO
+        output file /var/log/caddy/access.log {
+            roll_size 100mb
+            roll_keep 5
+        }
+    }
+}
+
+# =============================================================
+# streetmp.com — Public Marketing Site + Next.js Frontend
+# =============================================================
+streetmp.com, www.streetmp.com {
+    # TLS: Automatic via Let's Encrypt ACME (HTTP-01 challenge)
+    tls {
+        protocols tls1.2 tls1.3
+    }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+        -Server  # Remove server header
+    }
+
+    # ── Rate Limiting (global: 100 req/min per IP) ──────────────
+    # Protects ALL routes from DDoS
+    rate_limit {
+        zone global_zone {
+            key     {remote_host}
+            events  100
+            window  1m
+        }
+    }
+
+    # ── Route to Next.js ────────────────────────────────────────
+    handle {
+        reverse_proxy web:3000 {
+            # Pass real IP to Next.js for logging/rate-limit decisions
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up Host {host}
+
+            # Health check for load balancing (caddy will mark upstream down
+            # if health checks fail — stops routing to a crashed Next.js)
+            health_uri   /health
+            health_interval 15s
+            health_timeout  5s
+        }
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/streetmp.log
+    }
+}
+
+# =============================================================
+# api.streetmp.com — Enforcer Service (LLM Execution Entry Point)
+# =============================================================
+api.streetmp.com {
+    tls {
+        protocols tls1.2 tls1.3
+    }
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        -Server
+    }
+
+    # ── STRICTER Rate Limiting on the Enforcer (50 req/min per IP) ──
+    # The Enforcer triggers LLM calls — each request has real cost.
+    # This prevents runaway usage even for authenticated users.
+    rate_limit {
+        zone enforcer_zone {
+            key     {remote_host}
+            events  50
+            window  1m
+        }
+    }
+
+    # ── CORS for the Next.js frontend ───────────────────────────
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header Access-Control-Allow-Origin "https://streetmp.com"
+        header Access-Control-Allow-Methods "GET, POST, OPTIONS"
+        header Access-Control-Allow-Headers "Authorization, Content-Type, X-Request-ID"
+        header Access-Control-Max-Age "3600"
+        respond "" 204
+    }
+
+    handle {
+        header Access-Control-Allow-Origin "https://streetmp.com"
+
+        reverse_proxy enforcer-service:4001 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+            header_up Host {host}
+            health_uri    /health
+            health_interval 15s
+            health_timeout  5s
+        }
+    }
+
+    log {
+        output file /var/log/caddy/api.log
+    }
+}
+
+# =============================================================
+# trust.streetmp.com — Trust Service (Escrow, HCQ, Marketplace)
+# =============================================================
+trust.streetmp.com {
+    tls {
+        protocols tls1.2 tls1.3
+    }
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options nosniff
+        -Server
+    }
+
+    rate_limit {
+        zone trust_zone {
+            key     {remote_host}
+            events  100
+            window  1m
+        }
+    }
+
+    # Stripe webhook bypass — no rate limit on webhooks (Stripe needs reliable delivery)
+    handle /webhooks/stripe {
+        reverse_proxy trust-service:4005 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+        }
+    }
+
+    handle {
+        header Access-Control-Allow-Origin "https://streetmp.com"
+
+        reverse_proxy trust-service:4005 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+            health_uri    /health
+            health_interval 15s
+        }
+    }
+
+    log {
+        output file /var/log/caddy/trust.log
+    }
+}

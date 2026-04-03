@@ -1,0 +1,19 @@
+{
+  "name": "@streetmp/edge-shield",
+  "version": "1.0.0",
+  "description": "Zero-Knowledge client-side PII sanitizer for StreetMP OS",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "author": "StreetMP",
+  "license": "UNLICENSED"
+}

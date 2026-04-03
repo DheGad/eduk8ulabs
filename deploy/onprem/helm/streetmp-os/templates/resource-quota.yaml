@@ -1,0 +1,52 @@
+{{/*
+  StreetMP OS — resource-quota.yaml
+  Enforces namespace-level resource guardrails to prevent the OS from
+  starving the host hardware under peak load.
+*/}}
+{{- if .Values.resourceQuota.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: streetmp-os-quota
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: streetmp-os
+spec:
+  hard:
+    requests.cpu: {{ .Values.resourceQuota.hard.requests_cpu | default "8" | quote }}
+    requests.memory: {{ .Values.resourceQuota.hard.requests_memory | default "24Gi" | quote }}
+    limits.cpu: {{ .Values.resourceQuota.hard.limits_cpu | default "16" | quote }}
+    limits.memory: {{ .Values.resourceQuota.hard.limits_memory | default "32Gi" | quote }}
+    pods: {{ .Values.resourceQuota.hard.pods | default "30" | quote }}
+    services: {{ .Values.resourceQuota.hard.services | default "20" | quote }}
+    persistentvolumeclaims: {{ .Values.resourceQuota.hard.persistentvolumeclaims | default "10" | quote }}
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: streetmp-os-limits
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: streetmp-os
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: "500m"
+        memory: "512Mi"
+      defaultRequest:
+        cpu: "100m"
+        memory: "128Mi"
+      max:
+        cpu: "4"
+        memory: "12Gi"
+      min:
+        cpu: "50m"
+        memory: "64Mi"
+    - type: Pod
+      max:
+        cpu: "8"
+        memory: "14Gi"
+{{- end }}

@@ -1,0 +1,56 @@
+/**
+ * @file shield.css
+ * @module StreetMP Extension — Content Script Styles
+ * @command COMMAND_094
+ *
+ * Styles injected into target pages for the shield badge
+ * and block alert slide animations.
+ *
+ * NOTE: These styles are scoped via high-specificity IDs to avoid
+ * collisions with the host site's CSS.
+ */
+
+/* ─── Slide-in / out Keyframes ─────────────────────────────────────────────── */
+@keyframes streetmp-slide-in {
+  from {
+    opacity:   0;
+    transform: translateX(24px) scale(0.96);
+  }
+  to {
+    opacity:   1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes streetmp-slide-out {
+  from {
+    opacity:   1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity:   0;
+    transform: translateX(24px) scale(0.96);
+  }
+}
+
+/* ─── Shield badge pulse animation ────────────────────────────────────────── */
+@keyframes streetmp-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 229, 153, 0); border-color: rgba(0, 229, 153, 0.3); }
+  50%       { box-shadow: 0 0 0 3px rgba(0, 229, 153, 0.06); border-color: rgba(0, 229, 153, 0.5); }
+}
+
+#streetmp-shield-badge {
+  animation: streetmp-breathe 3s ease-in-out infinite;
+}
+
+/* ─── Block alert container ────────────────────────────────────────────────── */
+#streetmp-block-alert {
+  animation: streetmp-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ─── Override: Ensure alert sits above site modals ───────────────────────── */
+#streetmp-block-alert,
+#streetmp-shield-badge {
+  z-index: 2147483647 !important;
+  -webkit-font-smoothing: antialiased;
+}

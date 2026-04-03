@@ -1,0 +1,148 @@
+# ============================================================
+# titan-deploy.yml — StreetMP OS Production Deployment
+# ============================================================
+#
+# Triggers on every push to 'main' and deploys the router-service
+# (and any other changed services) to the production VPS.
+#
+# Required GitHub Secrets (see setup-secrets.sh):
+#   DEPLOY_SSH_KEY        — Private key for root@<host>
+#   DEPLOY_HOST           — VPS IP or hostname
+#   DEPLOY_USER           — Remote SSH user (e.g. "root")
+#   DEPLOY_APP_DIR        — Absolute path on server (e.g. /var/www/streetmp-os)
+#   DEPLOY_KNOWN_HOST     — Output of: ssh-keyscan -H <host>
+# ============================================================
+
+name: Titan Deploy — Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allow manual triggers from the Actions tab
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false  # Never cancel an in-flight deploy; queue instead
+
+jobs:
+  deploy:
+    name: Deploy to Production VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Set up SSH agent ────────────────────────────────────
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      # ── 3. Add server to known_hosts (strict host checking) ────
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KNOWN_HOST }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      # ── 4. Run deployment on VPS ───────────────────────────────
+      - name: Deploy to VPS
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_APP_DIR: ${{ secrets.DEPLOY_APP_DIR }}
+        run: |
+          ssh -o StrictHostKeyChecking=yes \
+              -o ConnectTimeout=15 \
+              "${DEPLOY_USER}@${DEPLOY_HOST}" \
+              bash -s << 'REMOTE_SCRIPT'
+
+            set -euo pipefail
+
+            echo "=== [Titan Deploy] Starting at $(date) ==="
+
+            # ── Step 1: Zombie Docker Recovery ─────────────────────
+            # If Docker is "running" but the socket is deadlocked (common after
+            # an OOM kill or a crash loop), containers will be unresponsive.
+            # We detect this by timing out a simple 'docker info' call.
+            # If it hangs or fails, we do a hard daemon restart before building.
+            echo "=== Checking Docker daemon health ==="
+            if ! timeout 10 docker info > /dev/null 2>&1; then
+              echo "=== WARN: Docker daemon unresponsive — forcing restart ==="
+              systemctl restart docker
+              echo "=== Sleeping 12s for daemon recovery ==="
+              sleep 12
+              if ! timeout 10 docker info > /dev/null 2>&1; then
+                echo "=== FATAL: Docker daemon failed to recover after restart ==="
+                exit 1
+              fi
+            fi
+            echo "=== Docker daemon healthy ==="
+
+            # ── Step 2: Check for zombie containers and purge them ─
+            # A zombie container is stopped but still holds its port binding,
+            # causing 'up -d' to fail with "port already allocated".
+            echo "=== Purging stopped/exited containers ==="
+            docker container prune -f
+
+            # ── Step 3: Pull latest code ───────────────────────────
+            cd "${DEPLOY_APP_DIR:-/var/www/streetmp-os}"
+
+            echo "=== Pulling latest code from origin/main ==="
+            git fetch origin main
+            git reset --hard origin/main
+
+            # ── Step 4: Rebuild changed services ──────────────────
+            echo "=== Rebuilding router-service (no cache) ==="
+            docker compose -f docker-compose.prod.yml build --no-cache router-service
+
+            echo "=== Rebuilding web service (no cache) ==="
+            docker compose -f docker-compose.prod.yml build --no-cache web
+
+            # ── Step 5: Rolling restart ────────────────────────────
+            echo "=== Applying rolling restart ==="
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            echo "=== Sleeping 8s for containers to initialise ==="
+            sleep 8
+
+            # ── Step 6: Port binding verification ─────────────────
+            # Confirm ports 3000 (web) and 4000 (router-service) are bound.
+            echo "=== Verifying port bindings ==="
+            if ! ss -tlnp | grep -q ':3000'; then
+              echo "=== WARN: Port 3000 (web) is NOT bound — check docker logs ==="
+              docker compose -f docker-compose.prod.yml logs web --tail 30
+            else
+              echo "=== OK: Port 3000 (web) is bound ==="
+            fi
+
+            if ! ss -tlnp | grep -q ':4000'; then
+              echo "=== WARN: Port 4000 (router-service) is NOT bound — check docker logs ==="
+              docker compose -f docker-compose.prod.yml logs router-service --tail 30
+            else
+              echo "=== OK: Port 4000 (router-service) is bound ==="
+            fi
+
+            # ── Step 7: Health checks & logs ─────────────────────
+            echo "=== Container status ==="
+            docker compose -f docker-compose.prod.yml ps
+
+            echo "=== Router service logs (last 20) ==="
+            docker logs streetmp_router_prod --tail 20 2>&1 || true
+
+            echo "=== Web service logs (last 10) ==="
+            docker logs streetmp_web_prod --tail 10 2>&1 || true
+
+            echo "=== [Titan Deploy] Completed at $(date) ==="
+          REMOTE_SCRIPT
+
+      # ── 5. Notify on failure ───────────────────────────────────
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Titan Deploy FAILED. Check the logs above and roll back manually if needed."
+          echo "::error::SSH in and run: docker compose -f docker-compose.prod.yml logs router-service"

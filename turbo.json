@@ -1,0 +1,76 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    ".env"
+  ],
+  "globalEnv": [
+    "NODE_ENV",
+    "PORT",
+    "STREETMP_MASTER_KEY",
+    "JWT_SECRET",
+    "INTERNAL_ROUTER_SECRET",
+    "DB_HOST",
+    "DB_PORT",
+    "DB_USER",
+    "DB_PASS",
+    "DB_NAME",
+    "VAULT_SERVICE_URL",
+    "ROUTER_SERVICE_URL",
+    "USAGE_SERVICE_URL",
+    "TRUST_SERVICE_URL",
+    "NEXT_PUBLIC_AUTH_SERVICE_URL",
+    "NEXT_PUBLIC_VAULT_SERVICE_URL",
+    "NEXT_PUBLIC_ROUTER_SERVICE_URL",
+    "NEXT_PUBLIC_ENFORCER_SERVICE_URL",
+    "NEXT_PUBLIC_TRUST_SERVICE_URL",
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "SANITIZER_SERVICE_URL",
+    "SANITIZER_SERVICE_PORT",
+    "ENTERPRISE_NODE_ID",
+    "ENTERPRISE_NODE_SECRET",
+    "TELEMETRY_HQ_URL",
+    "TELEMETRY_PULSE_INTERVAL_MS",
+    "TELEMETRY_PULSE_EVERY_N",
+    "REDIS_URL",
+    "CACHE_ENABLED",
+    "CACHE_TTL_SECONDS"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": [
+        "^lint"
+      ]
+    },
+    "type-check": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "coverage/**"
+      ]
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

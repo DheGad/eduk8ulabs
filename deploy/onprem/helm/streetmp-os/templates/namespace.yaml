@@ -1,0 +1,13 @@
+{{/*
+  StreetMP OS — Helm Templates
+  namespace.yaml — Creates the dedicated streetmp-system namespace
+*/}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.global.namespace }}
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: streetmp-os
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+    streetmp.com/tier: "sovereign"

@@ -1,0 +1,11 @@
+models:
+  - type: main
+    engine: nim
+    parameters:
+      model: meta/llama3-8b-instruct
+
+rails:
+  input:
+    flows:
+      - block jailbreak
+      - block pii

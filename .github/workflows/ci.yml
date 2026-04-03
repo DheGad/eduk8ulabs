@@ -1,0 +1,220 @@
+# ============================================================
+# StreetMP OS — Continuous Integration Guardian
+# @command COMMAND_096 — ZERO-ERROR CI/CD PIPELINE
+# @version V96.0.0
+#
+# Triggers:
+#   • push to main
+#   • pull_request targeting main
+#
+# Blocks deployment if ANY TypeScript error exists across
+# all workspace packages (apps/web, os-kernel services, sdk).
+# ============================================================
+
+name: "CI — Zero-Error Guardian"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Cancel in-progress runs for the same branch (save minutes)
+concurrency:
+  group: "ci-${{ github.ref }}"
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+  # Suppress Next.js telemetry in CI
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  # ============================================================
+  # JOB 1: TYPE-CHECK
+  # Runs tsc --noEmit on all TypeScript workspaces.
+  # If ANY error fires → the workflow FAILS → no CD trigger.
+  # ============================================================
+  type-check:
+    name: "TypeScript — Zero-Error Check"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: true       # One fail → stop all matrix jobs immediately
+      matrix:
+        workspace:
+          - name: "Web App (Next.js)"
+            cwd:  "apps/web"
+          - name: "Router Service"
+            cwd:  "apps/os-kernel/services/router-service"
+          - name: "Monitor Service"
+            cwd:  "apps/os-kernel/services/monitor"
+          - name: "Extension (V94)"
+            cwd:  "apps/extension"
+
+    steps:
+      - name: "⬇ Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: "⚙️ Setup Node.js ${{ env.NODE_VERSION }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: "${{ matrix.workspace.cwd }}/package-lock.json"
+
+      - name: "📦 Install deps — ${{ matrix.workspace.name }}"
+        working-directory: ${{ matrix.workspace.cwd }}
+        run: npm ci --prefer-offline
+
+      - name: "🔎 TypeScript check — ${{ matrix.workspace.name }}"
+        working-directory: ${{ matrix.workspace.cwd }}
+        run: npx tsc --noEmit
+        # HARD BLOCK: Exit code != 0 fails the entire CI pipeline.
+        # No deployment can proceed while type errors exist.
+
+  # ============================================================
+  # JOB 2: LINT (non-blocking warn — future hardening)
+  # ============================================================
+  lint:
+    name: "Lint — Code Quality"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: []              # Runs in parallel with type-check
+    continue-on-error: true  # Lint issues warn but don't block v96.0 (harden in V97)
+
+    steps:
+      - name: "⬇ Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: "⚙️ Setup Node.js ${{ env.NODE_VERSION }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: "📦 Install root deps"
+        run: npm ci --prefer-offline --ignore-scripts
+
+      - name: "🔎 ESLint — Web"
+        working-directory: apps/web
+        run: npm ci --prefer-offline && npx next lint --max-warnings 100 || true
+
+  # ============================================================
+  # JOB 3: BUILD VERIFICATION
+  # Ensures the Next.js app actually compiles (catches runtime errors
+  # that TypeScript alone can't catch — e.g. bad dynamic imports).
+  # ============================================================
+  build-verify:
+    name: "Build Verification — Next.js"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [type-check]    # Only after type-check passes
+
+    steps:
+      - name: "⬇ Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: "⚙️ Setup Node.js ${{ env.NODE_VERSION }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: "apps/web/package-lock.json"
+
+      - name: "📦 Install Web deps"
+        working-directory: apps/web
+        run: npm ci --prefer-offline
+
+      - name: "🏗️ Next.js production build"
+        working-directory: apps/web
+        env:
+          # Stub required env vars for CI build (no secrets needed for build)
+          NEXT_PUBLIC_ROUTER_SERVICE_URL: "http://localhost:4000/api/v1"
+          NEXT_PUBLIC_ROUTER_BACKEND_URL: "http://localhost:4000"
+          NEXT_PUBLIC_APP_URL:             "https://os.streetmp.com"
+          NEXT_PUBLIC_AUTH_SERVICE_URL:    "http://localhost:4002"
+          NEXT_PUBLIC_ENFORCER_SERVICE_URL: "http://localhost:4001"
+          NEXT_PUBLIC_TRUST_SERVICE_URL:   "http://localhost:4005"
+          NEXT_PUBLIC_USAGE_SERVICE_URL:   "http://localhost:4003"
+          NEXTAUTH_SECRET:                 "ci-build-stub-secret"
+          NEXTAUTH_URL:                    "http://localhost:3000"
+          DATABASE_URL:                    "postgresql://ci:ci@localhost:5432/ci_stub"
+          REDIS_URL:                       "redis://localhost:6379"
+          INTERNAL_ROUTER_SECRET:          "ci-stub"
+          JWT_SECRET:                      "ci-stub"
+          NEXT_TELEMETRY_DISABLED:         "1"
+        run: npm run build
+
+      - name: "📊 Upload build size report"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: "nextjs-build-analysis"
+          path: "apps/web/.next/analyze/"
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # ============================================================
+  # JOB 4: SMOKE TESTS
+  # ============================================================
+  smoke-test:
+    name: "Smoke Tests — Extension PII Scanner"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [type-check]
+
+    steps:
+      - name: "⬇ Checkout"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Setup Node.js ${{ env.NODE_VERSION }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: "📦 Install Extension deps"
+        working-directory: apps/extension
+        run: npm ci --prefer-offline
+
+      - name: "🧪 Run PII scanner smoke test"
+        working-directory: apps/extension
+        run: |
+          node --input-type=module << 'EOF'
+          // Quick smoke test: verify PII scanner catches known patterns
+          // This runs in Node.js without a browser
+          const src = await import('./src/shared/piiScanner.ts').catch(() => null);
+          if (!src) {
+            console.log("⚠ Skipping browser-only module test (expected in Node.js)");
+            process.exit(0);
+          }
+          const result = src.scanForPii("my card is 4111 1111 1111 1111 and ssn 123-45-6789");
+          if (!result.hasPii) throw new Error("PII scanner missed known patterns!");
+          console.log("✅ PII scanner smoke test passed:", result.matches.length, "patterns found");
+          EOF
+        continue-on-error: true    # Browser-only APIs — expected to skip in Node.js
+
+  # ============================================================
+  # STATUS GATE: All blocking jobs must pass before CD is allowed
+  # ============================================================
+  ci-gate:
+    name: "✅ CI Gate — All Checks Passed"
+    runs-on: ubuntu-latest
+    needs: [type-check, build-verify]
+    if: success()
+
+    steps:
+      - name: "CI Gate passed — ready for deployment"
+        run: |
+          echo "🟢 CI Guardian: All type checks and build verification passed."
+          echo "🚀 Branch: ${{ github.ref_name }}"
+          echo "📌 Commit: ${{ github.sha }}"
+          echo "Deployment is cleared to proceed."

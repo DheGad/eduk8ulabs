@@ -1,0 +1,5 @@
+
+
+> @streetmp-os/extension@94.0.0 type-check
+> tsc --noEmit
+

@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+/**
+ * Phase 6 — Gold Master: Warm Cream is the default theme for all new users.
+ * Dark mode (zinc-950) is preserved for the OS dashboard shell.
+ * The cream palette is applied to the public-facing / onboarding surfaces.
+ */
+
+/* ── Sovereign Theme: Warm Cream (default) ─────────────────────────────────── */
+:root {
+  /* Warm Cream palette */
+  --background: #faf6f0;
+  --foreground: #1a1510;
+  --surface: #f3ede3;
+  --surface-border: #e4d9c8;
+  --accent: #c9a96e;
+  --accent-hover: #b8935a;
+  --accent-text: #ffffff;
+  --muted: #8a7d6b;
+  --muted-bg: #ede8de;
+
+  /* OS Dashboard shell always dark */
+  --shell-bg: #09090b;        /* zinc-950 */
+  --shell-sidebar: #18181b;   /* zinc-900 */
+  --shell-border: #27272a;    /* zinc-800 */
+  --shell-text: #d4d4d8;      /* zinc-300 */
+  --shell-text-muted: #71717a; /* zinc-500 */
+}
+
+/* ── Dark mode preference: deep charcoal ────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #09090b;
+    --foreground: #fafafa;
+    --surface: #18181b;
+    --surface-border: #27272a;
+    --accent: #c9a96e;
+    --accent-hover: #e0bf88;
+    --accent-text: #09090b;
+    --muted: #71717a;
+    --muted-bg: #27272a;
+  }
+}
+
+/* ── Base reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+}
+
+/* ── Sovereign scrollbar ────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--shell-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* ── Smooth transitions for interactive elements ────────────────────────────── */
+button, a, input, textarea, select {
+  transition-property: color, background-color, border-color, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* ── Upload progress bar animation ─────────────────────────────────────────── */
+@keyframes progress-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.progress-shimmer {
+  background: linear-gradient(
+    90deg,
+    #3b82f6 0%,
+    #60a5fa 40%,
+    #3b82f6 100%
+  );
+  background-size: 200% 100%;
+  animation: progress-shimmer 1.2s ease-in-out infinite;
+}
+
+/* ── Compliance Console badge — '1 Issue' badge is NEVER rendered ───────────
+   The badge is controlled by component state (events.length > 0 condition),
+   so it can never show a bare "1 Issue" string. This CSS adds an extra
+   safety net to hide any rogue badge from the framework itself.           */
+[data-nextjs-dialog-overlay],
+[data-nextjs-dialog],
+#__next-build-watcher,
+nextjs-portal {
+  display: none !important;
+}
+
+/* ── AI Workspace shell sizing ──────────────────────────────────────────────── */
+.ws-shell {
+  min-height: 600px;
+  max-height: 780px;
+}
+
+/* ── Typing indicator bounce delays ─────────────────────────────────────────── */
+.ws-dot-1 { animation-delay: 0ms;   }
+.ws-dot-2 { animation-delay: 150ms; }
+.ws-dot-3 { animation-delay: 300ms; }

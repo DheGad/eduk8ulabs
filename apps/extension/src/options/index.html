@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>StreetMP Shield — Settings</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #0A0A0A; color: #fff; font-family: system-ui, -apple-system, sans-serif; padding: 32px; max-width: 640px; margin: 0 auto; }
+      h1 { font-size: 20px; color: #00E599; margin-bottom: 24px; }
+      label { display: block; margin-bottom: 12px; font-size: 13px; color: rgba(255,255,255,0.7); }
+      input[type="text"], input[type="password"] {
+        width: 100%; padding: 8px 12px; background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;
+        color: #fff; font-size: 13px; margin-top: 4px;
+      }
+      button { padding: 9px 20px; background: linear-gradient(135deg,#00E599,#00b077); color: #000; font-weight: 700; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; margin-top: 16px; }
+      .section { margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .saved { color: #00E599; font-size: 12px; margin-top: 8px; display: none; }
+    </style>
+  </head>
+  <body>
+    <h1>⚡ StreetMP Security Shield — Settings</h1>
+    <div class="section">
+      <label>StreetMP OS Kernel URL<input type="text" id="kernelUrl" placeholder="https://os.streetmp.com" /></label>
+      <label>Extension API Key<input type="password" id="extensionApiKey" placeholder="Enter your extension API key" /></label>
+    </div>
+    <div class="section">
+      <label>Compliance Frameworks (comma-separated)<input type="text" id="complianceFrameworks" placeholder="PDPA, SOC2, GDPR" /></label>
+    </div>
+    <button id="save">Save Settings</button>
+    <div class="saved" id="saved-msg">✅ Settings saved.</div>
+
+    <script type="module">
+      async function load() {
+        const data = await chrome.storage.sync.get(["kernelUrl", "extensionApiKey", "complianceFrameworks"]);
+        document.getElementById("kernelUrl").value = data.kernelUrl || "https://os.streetmp.com";
+        document.getElementById("extensionApiKey").value = data.extensionApiKey || "";
+        document.getElementById("complianceFrameworks").value = (data.complianceFrameworks || ["PDPA", "SOC2"]).join(", ");
+      }
+
+      document.getElementById("save").addEventListener("click", async () => {
+        const kernelUrl            = document.getElementById("kernelUrl").value.trim();
+        const extensionApiKey      = document.getElementById("extensionApiKey").value.trim();
+        const complianceFrameworks = document.getElementById("complianceFrameworks").value.split(",").map(s => s.trim()).filter(Boolean);
+        await chrome.storage.sync.set({ kernelUrl, extensionApiKey, complianceFrameworks });
+        const msg = document.getElementById("saved-msg");
+        msg.style.display = "block";
+        setTimeout(() => { msg.style.display = "none"; }, 3000);
+      });
+
+      load();
+    </script>
+  </body>
+</html>

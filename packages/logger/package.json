@@ -1,0 +1,20 @@
+{
+  "name": "@streetmp-os/logger",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sentinel — shared structured logger for all StreetMP OS microservices",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "dev":   "tsc --project tsconfig.json --watch"
+  },
+  "dependencies": {
+    "pino":        "^8.19.0",
+    "pino-pretty": "^11.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}

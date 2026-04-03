@@ -1,0 +1,54 @@
+# =============================================================================
+# V100-2: Production Ingress & Infrastructure Matrix
+# Target: os.streetmp.com (187.127.131.212)
+# =============================================================================
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: streetmp-os-ingress
+  namespace: streetmp-prod
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    # Strict TLS 1.3 enforcement
+    nginx.ingress.kubernetes.io/ssl-ciphers: "TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.3"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    
+    # HSTS Policy (1 year, include subdomains)
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload";
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+    
+    # Cloudflare WAF simulated annotations for the edge shield
+    cloudflare.com/waf-mode: "strict"
+    cloudflare.com/rate-limit-proxy: "enabled"
+    cloudflare.com/bot-fight-mode: "super-bot-fight"
+    
+spec:
+  tls:
+    - hosts:
+        - os.streetmp.com
+      secretName: streetmp-tls-prod
+  rules:
+    - host: os.streetmp.com
+      http:
+        paths:
+          # Frontend Web Traffic (Next.js)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: streetmp-web-service
+                port:
+                  number: 3000
+          
+          # Internal Router Gateway (Restricted Proxy Access)
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: streetmp-router-service
+                port:
+                  number: 4000

@@ -1,0 +1,20 @@
+# BUILD STAGE
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+WORKDIR /app/apps/os-kernel/services/router-service
+RUN npm run build
+
+# DISTROLESS RUNNER
+FROM cgr.dev/chainguard/node:latest
+ENV NODE_ENV production
+WORKDIR /app/router
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/os-kernel/services/router-service/dist ./dist
+COPY --from=builder /app/apps/os-kernel/services/router-service/package.json ./package.json
+
+EXPOSE 4000
+# Execution directly via Node binary. Zero shell layer.
+ENTRYPOINT ["node", "dist/index.js"]

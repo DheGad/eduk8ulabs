@@ -1,0 +1,20 @@
+{
+  "name": "@streetmp/enclave-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Node.js Control Plane vsock bridge to the Nitro Enclave Data Plane",
+  "main": "dist/vsock-client.js",
+  "scripts": {
+    "dev": "npx tsx src/vsock-client.ts",
+    "build": "tsc --outDir dist",
+    "test": "echo 'Integration test requires AWS Nitro or socat vsock emulation'"
+  },
+  "dependencies": {
+    "vsock": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.4.0"
+  }
+}

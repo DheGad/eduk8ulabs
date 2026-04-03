@@ -1,0 +1,10 @@
+#!/usr/bin/expect -f
+set timeout -1
+spawn bash deploy_production.sh
+expect {
+    "password:" {
+        send "8RsPXt.#t;4dmIH#02@b\r"
+        exp_continue
+    }
+    eof
+}

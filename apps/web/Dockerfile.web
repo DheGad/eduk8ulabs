@@ -1,0 +1,81 @@
+# ============================================================
+# Dockerfile.web — StreetMP OS Next.js Frontend
+# Multi-stage: deps → builder → runner (standalone)
+# ============================================================
+# BUILD CONTEXT: monorepo root  (Project_Source/)
+# USAGE via docker-compose.prod.yml:
+#   docker compose -f docker-compose.prod.yml up -d --build
+# ============================================================
+
+# ── Stage 1: Install dependencies ──────────────────────────
+FROM node:20-alpine AS deps
+
+RUN apk add --no-cache libc6-compat
+
+WORKDIR /app
+
+# Context = apps/web/ — copy manifests only for layer-cache efficiency
+COPY package.json package-lock.json* ./
+
+RUN npm install --ignore-scripts
+
+# ── Stage 2: Build Next.js ─────────────────────────────────
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Build args for NEXT_PUBLIC_ env vars (baked at build time by Compose)
+ARG NEXT_PUBLIC_AUTH_SERVICE_URL
+ARG NEXT_PUBLIC_VAULT_SERVICE_URL
+ARG NEXT_PUBLIC_ROUTER_SERVICE_URL
+ARG NEXT_PUBLIC_ENFORCER_SERVICE_URL
+ARG NEXT_PUBLIC_TRUST_SERVICE_URL
+ARG NEXT_PUBLIC_USAGE_SERVICE_URL
+ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+ARG NEXT_PUBLIC_APP_URL
+
+ENV NEXT_PUBLIC_AUTH_SERVICE_URL=$NEXT_PUBLIC_AUTH_SERVICE_URL
+ENV NEXT_PUBLIC_VAULT_SERVICE_URL=$NEXT_PUBLIC_VAULT_SERVICE_URL
+ENV NEXT_PUBLIC_ROUTER_SERVICE_URL=$NEXT_PUBLIC_ROUTER_SERVICE_URL
+ENV NEXT_PUBLIC_ENFORCER_SERVICE_URL=$NEXT_PUBLIC_ENFORCER_SERVICE_URL
+ENV NEXT_PUBLIC_TRUST_SERVICE_URL=$NEXT_PUBLIC_TRUST_SERVICE_URL
+ENV NEXT_PUBLIC_USAGE_SERVICE_URL=$NEXT_PUBLIC_USAGE_SERVICE_URL
+ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+
+# Disable Next.js telemetry in CI/CD
+ENV NEXT_TELEMETRY_DISABLED=1
+
+COPY --from=deps /app/node_modules ./node_modules
+# Copy entire apps/web source (context root = apps/web/)
+COPY . .
+
+RUN npm run build
+
+# ── Stage 3: Production runner ────────────────────────────
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser  --system --uid 1001 nextjs
+
+# Copy node_modules, built output, and public assets
+COPY --from=deps    --chown=nextjs:nodejs /app/node_modules      ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json      ./package.json
+COPY --from=builder --chown=nextjs:nodejs /app/.next             ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/public            ./public
+
+USER nextjs
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD wget -qO- http://localhost:3000/ || exit 1
+
+CMD ["node_modules/.bin/next", "start", "-p", "3000"]

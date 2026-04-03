@@ -1,0 +1,39 @@
+# StreetMP OS — apps/web Docker ignore
+# Prevents local secrets, dev artifacts, and OS junk
+# from being included in the Docker build context
+
+# Local environment secrets — NEVER bake into image
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Next.js build output (rebuilt fresh inside Docker)
+.next/
+
+# Node dependencies (reinstalled inside Docker via npm ci)
+node_modules/
+
+# Version control
+.git/
+.gitignore
+
+# OS / Editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Logs
+*.log
+npm-debug.log*
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
+
+# Test output
+coverage/

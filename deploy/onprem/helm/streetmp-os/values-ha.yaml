@@ -1,0 +1,38 @@
+# =============================================================================
+# StreetMP OS Helm Chart — values-ha.yaml
+# V100-MAX Ironclad HA Profile
+# Deploy with: helm upgrade --install streetmp-os ./streetmp-os -f values.yaml -f values-ha.yaml
+# =============================================================================
+
+replicaCount:
+  web: 3
+  routerService: 3
+  billingService: 3
+  vaultService: 3
+  sanitizerService: 3
+  # Ollama scales based on GPU node availability.
+  ollamaService: 1
+
+# Enforce High-Availability by ensuring pods are spread across different nodes
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app
+          operator: Exists
+      topologyKey: "kubernetes.io/hostname"
+
+# GPU Acceleration for Ollama
+runtimeClassName: nvidia
+
+# External subchart configurations (simulated for HA PostgreSQL and Redis)
+postgresql:
+  architecture: replication
+  replicaCount: 3
+
+redis:
+  architecture: replication
+  sentinel:
+    enabled: true
+    masterSet: streetmpha

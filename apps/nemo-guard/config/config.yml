@@ -1,0 +1,20 @@
+# NeMo Guardrails — Minimal Content Safety Configuration
+# StreetMP OS — Command 081 (V81 NeMo Guard Sidecar)
+#
+# This config intentionally uses a "self" (passthrough) LLM so the sidecar
+# can initialize without any external API key. The rails defined in rails.co
+# operate purely on keyword/pattern matching, making them synchronous and
+# sub-millisecond on CPU.
+
+models:
+  - type: main
+    engine: self  # passthrough: NeMo initialises without calling an LLM
+    model: none
+
+rails:
+  input:
+    flows:
+      - content safety check
+  output:
+    flows:
+      - content safety output check

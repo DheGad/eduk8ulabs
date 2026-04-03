@@ -1,0 +1,25 @@
+{
+  "name": "@streetmp-os/monitor",
+  "version": "95.0.0",
+  "description": "StreetMP OS — Self-Healing Autonomous Monitor (V95)",
+  "main": "dist/healthMonitor.js",
+  "private": true,
+  "scripts": {
+    "start":      "node dist/healthMonitor.js",
+    "build":      "tsc",
+    "dev":        "tsx watch src/healthMonitor.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "axios":        "^1.7.2",
+    "ioredis":      "^5.4.1",
+    "nodemailer":   "^6.9.14",
+    "twilio":       "^5.2.3"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^6.4.15",
+    "@types/node":       "^20.14.0",
+    "tsx":               "^4.16.2",
+    "typescript":        "^5.5.3"
+  }
+}

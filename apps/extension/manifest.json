@@ -1,0 +1,106 @@
+{
+  "manifest_version": 3,
+  "name": "StreetMP Security Shield",
+  "short_name": "StreetMP Shield",
+  "version": "94.0.0",
+  "description": "Zero-Trust AI Governance — Intercepts shadow-IT usage of public LLMs and enforces StreetMP OS compliance policies in real time.",
+  "author": "StreetMP, Inc. <security@streetmp.com>",
+
+  "icons": {
+    "16":  "assets/icon-16.png",
+    "32":  "assets/icon-32.png",
+    "48":  "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
+
+  "action": {
+    "default_popup":  "popup.html",
+    "default_title":  "StreetMP Security Shield",
+    "default_icon": {
+      "16":  "assets/icon-16.png",
+      "48":  "assets/icon-48.png",
+      "128": "assets/icon-128.png"
+    }
+  },
+
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.chatgpt.com/*",
+        "*://chatgpt.com/*",
+        "*://*.chat.openai.com/*"
+      ],
+      "js":  ["content/interceptor.js"],
+      "css": ["content/shield.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://*.anthropic.com/*",
+        "*://claude.ai/*"
+      ],
+      "js":  ["content/interceptor.js"],
+      "css": ["content/shield.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "*://gemini.google.com/*",
+        "*://bard.google.com/*"
+      ],
+      "js":  ["content/interceptor.js"],
+      "css": ["content/shield.css"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "permissions": [
+    "activeTab",
+    "storage",
+    "notifications"
+  ],
+
+  "host_permissions": [
+    "*://*.chatgpt.com/*",
+    "*://chatgpt.com/*",
+    "*://*.openai.com/*",
+    "*://claude.ai/*",
+    "*://*.anthropic.com/*",
+    "*://gemini.google.com/*",
+    "*://bard.google.com/*",
+    "https://os.streetmp.com/*",
+    "https://187.127.131.212/*"
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/*",
+        "content/shield.css"
+      ],
+      "matches": [
+        "*://*.chatgpt.com/*",
+        "*://claude.ai/*",
+        "*://*.anthropic.com/*",
+        "*://gemini.google.com/*"
+      ]
+    }
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none';"
+  },
+
+  "minimum_chrome_version": "116",
+
+  "homepage_url": "https://os.streetmp.com",
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  }
+}

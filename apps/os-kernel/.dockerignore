@@ -1,0 +1,57 @@
+# ============================================================
+# .dockerignore — Streetmp OS Kernel Services
+# ============================================================
+# Excludes all source/dev files from the Docker build context.
+# The multi-stage Dockerfile copies only compiled dist/ and
+# production node_modules — this file ensures nothing leaks.
+# ============================================================
+
+# TypeScript source (compiled in builder stage, not needed in runner)
+src/
+tests/
+test/
+__tests__/
+*.test.ts
+*.spec.ts
+
+# TypeScript compiler config (build artifacts already in dist/)
+tsconfig.json
+tsconfig.*.json
+
+# Development environment files — NEVER in Docker images
+.env
+.env.*
+!.env.example
+
+# Build artifacts from the host that get replaced by Docker build
+dist/
+node_modules/
+
+# Package lock — only package.json needed; npm ci uses it from host
+# but inside Docker we run npm ci inside the container
+# (leave package-lock.json — npm ci REQUIRES it inside the image)
+# package-lock.json  ← intentionally NOT excluded
+
+# Version control
+.git/
+.gitignore
+
+# Editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# CI/CD (not needed inside the container)
+.github/
+.circleci/
+
+# Documentation
+*.md
+docs/

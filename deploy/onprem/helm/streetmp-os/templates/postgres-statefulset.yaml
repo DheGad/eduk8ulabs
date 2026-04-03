@@ -1,0 +1,93 @@
+{{/*
+  StreetMP OS — postgres-statefulset.yaml
+  Persistent PostgreSQL for the V35 Merkle Vault and tenant database.
+  Data survives pod restarts and node reboots via PVC.
+*/}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: streetmp-postgres-secret
+  namespace: {{ .Values.global.namespace }}
+type: Opaque
+stringData:
+  POSTGRES_DB: "streetmp_os"
+  POSTGRES_USER: "streetmp"
+  POSTGRES_PASSWORD: {{ .Values.env.jwtSecret | b64enc | b64dec | default "streetmp_sdc_password" | quote }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: streetmp-postgres
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: streetmp-postgres
+    app.kubernetes.io/managed-by: Helm
+spec:
+  serviceName: "streetmp-postgres"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: streetmp-postgres
+  template:
+    metadata:
+      labels:
+        app: streetmp-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.images.postgres.repository }}:{{ .Values.images.postgres.tag }}"
+          imagePullPolicy: {{ .Values.images.postgres.pullPolicy }}
+          ports:
+            - containerPort: 5432
+              name: postgres
+          envFrom:
+            - secretRef:
+                name: streetmp-postgres-secret
+          resources:
+            requests:
+              cpu: {{ .Values.resources.postgres.requests.cpu | quote }}
+              memory: {{ .Values.resources.postgres.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.resources.postgres.limits.cpu | quote }}
+              memory: {{ .Values.resources.postgres.limits.memory | quote }}
+          {{- if .Values.probes.enabled }}
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "streetmp"]
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "streetmp"]
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+          {{- end }}
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+              subPath: pgdata
+  {{- if .Values.persistence.postgres.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: [ {{ .Values.persistence.postgres.accessMode | quote }} ]
+        storageClassName: {{ .Values.global.storageClass | quote }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.postgres.size | quote }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streetmp-postgres
+  namespace: {{ .Values.global.namespace }}
+spec:
+  clusterIP: None
+  selector:
+    app: streetmp-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres

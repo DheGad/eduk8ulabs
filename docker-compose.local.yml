@@ -1,0 +1,179 @@
+# =============================================================================
+# docker-compose.local.yml
+# StreetMP OS — Localhost Resource Guard
+#
+# Same architecture as production, but with strict memory/CPU limits applied
+# via the x-common-env anchor to prevent 10 microservices from crashing
+# a local developer's machine (e.g. older MacBooks).
+# =============================================================================
+version: '3.8'
+
+x-common-env: &common-env
+  restart: unless-stopped
+  networks:
+    - streetmp_internal
+  # ── THE RESOURCE GUARD ──────────────────────────────
+  # Caps every microservice to 512MB RAM and 0.5 CPU
+  # Prevents out-of-memory cascading crashes locally
+  deploy:
+    resources:
+      limits:
+        cpus: '0.50'
+        memory: 512M
+      reservations:
+        cpus: '0.10'
+        memory: 128M
+
+services:
+  # ── Core Infrastructure ─────────────────────────────────
+  postgres-vault:
+    image: postgres:15-alpine
+    container_name: streetmp_postgres_local
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-streetmp_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_secret_password}
+      POSTGRES_DB: ${POSTGRES_DB:-streetmp_os}
+    ports:
+      - "5432:5432"  # Exposed locally for easy DB inspection
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+      - ./packages/database/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - streetmp_internal
+    deploy:
+      resources:
+        limits:
+          memory: 1024M  # DB needs slightly more overhead
+          cpus: '1.0'
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: streetmp_redis_local
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-dev_redis_secret}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_local_data:/data
+    networks:
+      - streetmp_internal
+    <<: *common-env
+
+  # ── Microservices ───────────────────────────────────────
+  router-service:
+    build:
+      context: .
+      dockerfile: apps/os-kernel/services/router-service/Dockerfile
+    container_name: streetmp_router_local
+    ports:
+      - "4000:4000"
+    env_file: .env
+    depends_on:
+      - postgres-vault
+      - redis-cache
+    <<: *common-env
+
+  enforcer-service:
+    build:
+      context: .
+      dockerfile: apps/os-kernel/services/enforcer-service/Dockerfile
+    container_name: streetmp_enforcer_local
+    ports:
+      - "4001:4001"
+    env_file: .env
+    depends_on:
+      - postgres-vault
+    <<: *common-env
+
+  vault-service:
+    build:
+      context: .
+      dockerfile: apps/os-kernel/services/vault-service/Dockerfile
+    container_name: streetmp_vault_local
+    ports:
+      - "4002:4002"
+    env_file: .env
+    depends_on:
+      - postgres-vault
+    <<: *common-env
+
+  usage-service:
+    build:
+      context: .
+      dockerfile: apps/os-kernel/services/usage-service/Dockerfile
+    container_name: streetmp_usage_local
+    ports:
+      - "4003:4003"
+    env_file: .env
+    depends_on:
+      - postgres-vault
+    <<: *common-env
+
+  sanitizer-service:
+    build:
+      context: .
+      dockerfile: apps/os-kernel/services/sanitizer-service/Dockerfile
+    container_name: streetmp_sanitizer_local
+    ports:
+      - "4004:4004"
+    env_file: .env
+    depends_on:
+      - redis-cache
+    <<: *common-env
+
+  trust-service:
+    build:
+      context: .
+      dockerfile: apps/os-kernel/services/trust-service/Dockerfile
+    container_name: streetmp_trust_local
+    ports:
+      - "4005:4005"
+    env_file: .env
+    depends_on:
+      - postgres-vault
+    <<: *common-env
+
+  memory-service:
+    build:
+      context: .
+      dockerfile: apps/os-kernel/services/memory-service/Dockerfile
+    container_name: streetmp_memory_local
+    ports:
+      - "4007:4007"
+    env_file: .env
+    depends_on:
+      - postgres-vault
+    <<: *common-env
+
+  policy-service:
+    build:
+      context: .
+      dockerfile: apps/os-kernel/services/policy-service/Dockerfile
+    container_name: streetmp_policy_local
+    ports:
+      - "4008:4008"
+    env_file: .env
+    depends_on:
+      - postgres-vault
+    <<: *common-env
+
+  workflow-service:
+    build:
+      context: .
+      dockerfile: apps/os-kernel/services/workflow-service/Dockerfile
+    container_name: streetmp_workflow_local
+    ports:
+      - "4009:4009"
+    env_file: .env
+    depends_on:
+      - postgres-vault
+    <<: *common-env
+
+volumes:
+  postgres_local_data:
+  redis_local_data:
+
+networks:
+  streetmp_internal:
+    driver: bridge

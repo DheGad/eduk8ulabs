@@ -1,0 +1,103 @@
+{{/*
+  StreetMP OS — ollama-deployment.yaml
+  Local LLM service — pre-baked Llama-3-8B-Instruct-Q4_K_M image.
+  Model is committed into the OCI image layer by package-sdc.sh.
+  Zero model downloads required at runtime.
+*/}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streetmp-ollama
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: streetmp-ollama
+    app.kubernetes.io/managed-by: Helm
+    streetmp.com/component: "local-llm"
+spec:
+  replicas: {{ .Values.replicaCount.ollamaService }}
+  selector:
+    matchLabels:
+      app: streetmp-ollama
+  template:
+    metadata:
+      labels:
+        app: streetmp-ollama
+    spec:
+      {{- if .Values.runtimeClassName }}
+      runtimeClassName: {{ .Values.runtimeClassName | quote }}
+      {{- end }}
+      containers:
+        - name: ollama
+          image: "{{ .Values.images.ollama.repository }}:{{ .Values.images.ollama.tag }}"
+          imagePullPolicy: {{ .Values.images.ollama.pullPolicy }}
+          ports:
+            - containerPort: 11434
+              name: ollama-api
+          env:
+            - name: OLLAMA_KEEP_ALIVE
+              value: "-1"
+            - name: OLLAMA_MAX_LOADED_MODELS
+              value: "1"
+            - name: OLLAMA_NUM_PARALLEL
+              value: "2"
+          resources:
+            requests:
+              cpu: {{ .Values.resources.ollama.requests.cpu | quote }}
+              memory: {{ .Values.resources.ollama.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.resources.ollama.limits.cpu | quote }}
+              memory: {{ .Values.resources.ollama.limits.memory | quote }}
+          livenessProbe:
+            httpGet:
+              path: /api/tags
+              port: 11434
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/tags
+              port: 11434
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          volumeMounts:
+            - name: ollama-models
+              mountPath: /root/.ollama
+      volumes:
+        - name: ollama-models
+          {{- if .Values.persistence.ollamaModels.enabled }}
+          persistentVolumeClaim:
+            claimName: streetmp-ollama-models-pvc
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+---
+{{- if .Values.persistence.ollamaModels.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: streetmp-ollama-models-pvc
+  namespace: {{ .Values.global.namespace }}
+spec:
+  accessModes: [ {{ .Values.persistence.ollamaModels.accessMode | quote }} ]
+  storageClassName: {{ .Values.global.storageClass | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.ollamaModels.size | quote }}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streetmp-ollama
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: streetmp-ollama
+spec:
+  selector:
+    app: streetmp-ollama
+  ports:
+    - port: 11434
+      targetPort: 11434
+      name: ollama-api
+  type: ClusterIP

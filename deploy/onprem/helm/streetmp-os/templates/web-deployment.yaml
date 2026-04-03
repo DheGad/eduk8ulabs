@@ -1,0 +1,100 @@
+{{/*
+  StreetMP OS — web-deployment.yaml
+  Next.js admin dashboard and public-facing frontend.
+*/}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streetmp-web
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: streetmp-web
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: {{ .Values.replicaCount.web }}
+  selector:
+    matchLabels:
+      app: streetmp-web
+  template:
+    metadata:
+      labels:
+        app: streetmp-web
+    spec:
+      containers:
+        - name: web
+          image: "{{ .Values.images.web.repository }}:{{ .Values.images.web.tag }}"
+          imagePullPolicy: {{ .Values.images.web.pullPolicy }}
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: NEXT_PUBLIC_APP_URL
+              value: "http://{{ .Values.ingress.host }}"
+            - name: ROUTER_SERVICE_URL
+              value: {{ .Values.env.routerServiceUrl | quote }}
+            - name: STREETMP_ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: streetmp-app-secrets
+                  key: ADMIN_SECRET
+          resources:
+            requests:
+              cpu: {{ .Values.resources.web.requests.cpu | quote }}
+              memory: {{ .Values.resources.web.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.resources.web.limits.cpu | quote }}
+              memory: {{ .Values.resources.web.limits.memory | quote }}
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streetmp-web
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: streetmp-web
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http
+  type: ClusterIP
+---
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: streetmp-ingress
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingress.className | quote }}
+spec:
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host | quote }}
+      secretName: {{ .Values.ingress.tls.secretName | quote }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: streetmp-web
+                port:
+                  number: 3000
+{{- end }}

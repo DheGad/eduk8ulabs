@@ -1,0 +1,84 @@
+# ============================================================
+# docker-compose.enterprise.yml
+# StreetMP OS — Enterprise Air-Gapped BYOC Deployment
+# ============================================================
+
+version: "3.9"
+
+networks:
+  external-net:
+    driver: bridge
+  internal-net:
+    driver: bridge
+    internal: true
+
+volumes:
+  pg_ledger_data:
+  redis_cache_data:
+
+services:
+  postgres-ledger:
+    image: postgres:15-alpine
+    container_name: postgres-ledger
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-streetmp}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Database password is required}
+      POSTGRES_DB: ${DB_NAME:-streetmp_ledger}
+    volumes:
+      - pg_ledger_data:/var/lib/postgresql/data
+    networks:
+      - internal-net
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: redis-cache
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:?Redis password is required}
+    volumes:
+      - redis_cache_data:/data
+    networks:
+      - internal-net
+
+  zk-sanitizer:
+    image: ghcr.io/streetmp/zk-sanitizer:latest
+    container_name: zk-sanitizer
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - internal-net
+
+  enforcer-guard:
+    image: ghcr.io/streetmp/enforcer-guard:latest
+    container_name: enforcer-guard
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - ENFORCER_STRICT_MODE=${ENFORCER_STRICT_MODE:-true}
+    networks:
+      - internal-net
+
+  streetmp-kernel:
+    image: ghcr.io/streetmp/kernel:latest
+    container_name: streetmp-kernel
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL is required}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_HOST=redis-cache
+      - AWS_KMS_KEY_ID=${AWS_KMS_KEY_ID:?AWS KMS is required for HYOK}
+      - ENFORCER_URL=http://enforcer-guard:4003
+      - SANITIZER_URL=http://zk-sanitizer:4006
+    ports:
+      - "443:443"
+      - "80:80"
+    networks:
+      - external-net
+      - internal-net
+    depends_on:
+      - postgres-ledger
+      - redis-cache
+      - zk-sanitizer
+      - enforcer-guard

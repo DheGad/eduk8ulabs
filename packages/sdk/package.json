@@ -1,0 +1,38 @@
+{
+  "name": "@streetmp/sdk-v1",
+  "version": "1.0.0",
+  "description": "StreetMP OS White-Label SDK — Governed AI in 60 seconds",
+  "license": "MIT",
+  "author": "StreetMP Technologies",
+  "keywords": [
+    "ai-governance",
+    "llm-proxy",
+    "compliance",
+    "dlp",
+    "pii-protection",
+    "streetmp"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.12.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,535 @@
+# ============================================================
+# Streetmp OS — docker-compose.prod.yml
+# Production Stack (Self-Hosted Deployment)
+# ============================================================
+#
+# SECURITY RULES:
+#   • PostgreSQL and Redis have NO public port bindings.
+#     They are accessible ONLY from within the 'streetmp_internal'
+#     network — never from the public internet.
+#   • All secrets come from a .env.prod file (never committed).
+#   • Services run as non-root (USER node in Dockerfile).
+#   • All services restart: always for 99.9% uptime target.
+#
+# USAGE:
+#   # First-time setup:
+#   cp .env.example .env.prod
+#   # Edit .env.prod with production values, then:
+#   bash scripts/validate-prod-env.sh
+#   docker compose -f docker-compose.prod.yml up -d
+#
+#   # View logs:
+#   docker compose -f docker-compose.prod.yml logs -f [service]
+#
+#   # Rolling update:
+#   docker compose -f docker-compose.prod.yml pull && \
+#   docker compose -f docker-compose.prod.yml up -d --force-recreate
+# ============================================================
+
+x-common-env: &common-env
+  env_file: .env.prod
+  restart: always
+  # ── High Availability: self-healing on OOM / unhandled crash ──
+  deploy:
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
+      window: 120s
+  networks:
+    - streetmp_internal
+
+x-service-defaults: &service-defaults
+  <<: *common-env
+  depends_on:
+    postgres-vault:
+      condition: service_healthy
+    redis-cache:
+      condition: service_healthy
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "50m"
+      max-file: "5"
+
+services:
+  # ──────────────────────────────────────────────────────────
+  # DATABASE: PostgreSQL Vault
+  # ──────────────────────────────────────────────────────────
+  postgres-vault:
+    image: postgres:15-alpine
+    container_name: streetmp_postgres_prod
+    restart: always
+    # NO ports: section — database is NOT exposed publicly
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+      - ./packages/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+    networks:
+      - streetmp_internal
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # ──────────────────────────────────────────────────────────
+  # CACHE: Redis (Semantic Cache for Router Service)
+  # ──────────────────────────────────────────────────────────
+  redis-cache:
+    image: redis:7-alpine
+    container_name: streetmp_redis_prod
+    restart: always
+    # NO ports: section — Redis is NOT exposed publicly
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+      --appendonly yes
+    volumes:
+      - redis_prod_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    networks:
+      - streetmp_internal
+
+  # ──────────────────────────────────────────────────────────
+  # MICROSERVICE 1: Enforcer Service (Port 4001)
+  # ──────────────────────────────────────────────────────────
+  enforcer-service:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: apps/os-kernel/Dockerfile
+      args:
+        SERVICE_NAME: enforcer-service
+    image: streetmp-os/enforcer-service:latest
+    container_name: streetmp_enforcer_prod
+    environment:
+      PORT: "4001"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ──────────────────────────────────────────────────────────
+  # MICROSERVICE 2: Usage Service (Port 4004)
+  # ──────────────────────────────────────────────────────────
+  usage-service:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: apps/os-kernel/Dockerfile
+      args:
+        SERVICE_NAME: usage-service
+    image: streetmp-os/usage-service:latest
+    container_name: streetmp_usage_prod
+    environment:
+      PORT: "4004"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4004/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ──────────────────────────────────────────────────────────
+  # MICROSERVICE 3: Trust Service (Port 4005 — Escrow + HCQ)
+  # ──────────────────────────────────────────────────────────
+  trust-service:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: apps/os-kernel/Dockerfile
+      args:
+        SERVICE_NAME: trust-service
+    image: streetmp-os/trust-service:latest
+    container_name: streetmp_trust_prod
+    environment:
+      PORT: "4005"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4005/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ──────────────────────────────────────────────────────────
+  # V81 SIDECAR: NeMo Guardrails (Port 8001 — AI Safety Layer)
+  # Internal only — accessed only by router-service
+  # No public port binding: rail evaluation is backend-only.
+  # ──────────────────────────────────────────────────────────
+  nemo-guard:
+    build:
+      context: ./apps/nemo-guard
+      dockerfile: Dockerfile
+    image: streetmp-os/nemo-guard:latest
+    container_name: streetmp_nemo_guard_prod
+    restart: always
+    environment:
+      # NeMo uses OpenAI GPT-4o-mini for rail evaluation.
+      # The SAME key used by the router is re-used here — rail calls
+      # are cheap (gpt-4o-mini) and are isolated from user-facing calls.
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      NEMO_CONFIG_DIR: /app/nemo
+      PORT: "8001"
+    volumes:
+      # Mount the Colang rails config read-only into the container.
+      # Update config.yml / rails.co locally and run POST /v1/reload
+      # to hot-reload without rebuilding the image.
+      - ./packages/security/nemo:/app/nemo:ro
+    networks:
+      - streetmp_internal
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/health')\" || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 90s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+
+  # ──────────────────────────────────────────────────────────
+  # MICROSERVICE 4: Router Service (Port 4000 — LLM Gateway)
+  # ──────────────────────────────────────────────────────────
+  router-service:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: apps/os-kernel/Dockerfile
+      args:
+        SERVICE_NAME: router-service
+    image: streetmp-os/router-service:latest
+    container_name: streetmp_router_prod
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: "4000"
+      NEMO_GUARD_URL: "http://nemo-guard:8001"
+    depends_on:
+      postgres-vault:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+      nemo-guard:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ──────────────────────────────────────────────────────────
+  # MICROSERVICE 5: Sanitizer Service (Port 4006 — PII Scrubbing)
+  # ──────────────────────────────────────────────────────────
+  sanitizer-service:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: apps/os-kernel/Dockerfile
+      args:
+        SERVICE_NAME: sanitizer-service
+    image: streetmp-os/sanitizer-service:latest
+    container_name: streetmp_sanitizer_prod
+    environment:
+      PORT: "4006"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4006/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ──────────────────────────────────────────────────────────
+  # V2 MICROSERVICE 6: Memory Service (Port 4007 — Pattern Learning)
+  # ──────────────────────────────────────────────────────────
+  memory-service:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: apps/os-kernel/Dockerfile
+      args:
+        SERVICE_NAME: memory-service
+    image: streetmp-os/memory-service:latest
+    container_name: streetmp_memory_prod
+    environment:
+      PORT: "4007"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4007/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ──────────────────────────────────────────────────────────
+  # V2 MICROSERVICE 7: Policy Service (Port 4008 — Governance)
+  # ──────────────────────────────────────────────────────────
+  policy-service:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: apps/os-kernel/Dockerfile
+      args:
+        SERVICE_NAME: policy-service
+    image: streetmp-os/policy-service:latest
+    container_name: streetmp_policy_prod
+    environment:
+      PORT: "4008"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4008/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ──────────────────────────────────────────────────────────
+  # V2 MICROSERVICE 8: Workflow Service (Port 4009 — DAG Orchestration)
+  # ──────────────────────────────────────────────────────────
+  workflow-service:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: apps/os-kernel/Dockerfile
+      args:
+        SERVICE_NAME: workflow-service
+    image: streetmp-os/workflow-service:latest
+    container_name: streetmp_workflow_prod
+    environment:
+      PORT: "4009"
+      ENFORCER_SERVICE_URL: http://enforcer-service:4001
+    depends_on:
+      postgres-vault:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+      enforcer-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:4009/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ──────────────────────────────────────────────────────────
+  # TITAN HQ: Standalone Sidecar (Port 5000)
+  # ──────────────────────────────────────────────────────────
+  titan-hq:
+    container_name: streetmp_hq_prod
+    build:
+      context: ./apps/titan-hq
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - TITAN_BRIDGE_KEY=${TITAN_BRIDGE_KEY}
+    networks:
+      - streetmp_internal
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ──────────────────────────────────────────────────────────
+  # FRONTEND: Next.js 15 Web App (Port 3000)
+  # ──────────────────────────────────────────────────────────
+  web:
+    container_name: streetmp_web_prod
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile.web
+      args:
+        NEXT_PUBLIC_AUTH_SERVICE_URL: ${NEXT_PUBLIC_AUTH_SERVICE_URL}
+        NEXT_PUBLIC_VAULT_SERVICE_URL: ${NEXT_PUBLIC_VAULT_SERVICE_URL:-}
+        NEXT_PUBLIC_ROUTER_SERVICE_URL: ${NEXT_PUBLIC_ROUTER_SERVICE_URL:-}
+        NEXT_PUBLIC_ENFORCER_SERVICE_URL: ${NEXT_PUBLIC_ENFORCER_SERVICE_URL}
+        NEXT_PUBLIC_TRUST_SERVICE_URL: ${NEXT_PUBLIC_TRUST_SERVICE_URL}
+        NEXT_PUBLIC_USAGE_SERVICE_URL: ${NEXT_PUBLIC_USAGE_SERVICE_URL}
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL}
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - TRUST_SERVICE_URL_INTERNAL=http://trust-service:4005
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    networks:
+      - streetmp_internal
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # ──────────────────────────────────────────────────────────
+  # REVERSE PROXY: Nginx (running on the host handles SSL)
+  # Nginx on the VPS host owns ports 80/443 via Let's Encrypt.
+  # Docker services are accessed by nginx via 127.0.0.1 port bindings.
+  # web is exposed on 127.0.0.1:3000 for nginx to proxy os.streetmp.com.
+  # ──────────────────────────────────────────────────────────
+
+  # ──────────────────────────────────────────────────────────
+  # OBSERVABILITY: Prometheus (Metrics Scraper)
+  # Internal only — accessed via Caddy proxy or SSH tunnel
+  # Scrapes /metrics from all microservices every 15s
+  # ──────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: streetmp_prometheus_prod
+    restart: always
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=30d
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.enable-lifecycle    # Allow hot-reload via POST /-/reload
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - streetmp_internal
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ──────────────────────────────────────────────────────────
+  # OBSERVABILITY: Grafana (Dashboards)
+  # Internal only — Caddy proxies /grafana to this container
+  # Default credentials: admin / ${GRAFANA_PASSWORD}
+  # ──────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: streetmp_grafana_prod
+    restart: always
+    environment:
+      GF_SECURITY_ADMIN_USER:     admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-streetmp-change-me}
+      GF_SERVER_ROOT_URL:         https://streetmp.com/grafana
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"   # No telemetry to Grafana Labs
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: "/etc/grafana/provisioning/dashboards/streetmp.json"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - streetmp_internal
+    depends_on:
+      - prometheus
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ──────────────────────────────────────────────────────────
+  # OBSERVABILITY: Node Exporter (Host OS Metrics)
+  # Exports CPU, RAM, disk, and network stats for the host machine
+  # Scraped by Prometheus at node-exporter:9100/metrics
+  # ──────────────────────────────────────────────────────────
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: streetmp_node_exporter_prod
+    restart: always
+    command:
+      - --path.procfs=/host/proc
+      - --path.rootfs=/rootfs
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - streetmp_internal
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+# ──────────────────────────────────────────────────────────
+# VOLUMES (named — persist across restarts, NOT deleted on down)
+# ──────────────────────────────────────────────────────────
+volumes:
+  postgres_prod_data:
+    driver: local
+  redis_prod_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+# ──────────────────────────────────────────────────────────
+# NETWORKS
+# streetmp_internal is an isolated bridge network.
+# Only Caddy bridges to the public. All other services
+# communicate peer-to-peer via internal DNS (service name).
+# ──────────────────────────────────────────────────────────
+networks:
+  streetmp_internal:
+    driver: bridge
+    internal: false   # Caddy needs outbound for Let's Encrypt ACME challenge

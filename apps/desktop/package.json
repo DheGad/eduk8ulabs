@@ -1,0 +1,29 @@
+{
+  "name": "@streetmp-os/desktop",
+  "version": "93.0.0",
+  "description": "StreetMP OS — Sovereign Zero-Trust Desktop Shell (V93)",
+  "main": "dist-electron/main.js",
+  "homepage": "https://os.streetmp.com",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "electron-log": "^5.1.6",
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.3.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "electron": "^31.2.1",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4"
+  }
+}

@@ -1,0 +1,70 @@
+[package]
+name = "nitro-tokenizer"
+version = "0.1.0"
+edition = "2021"
+
+# ============================================================
+# Enclave binary — deliberately minimal dependency surface.
+# All crates must compile for x86_64-unknown-linux-musl
+# (the target used when building Nitro Enclave images via
+# `nitro-cli build-enclave`).
+# ============================================================
+
+[[bin]]
+name  = "nitro-tokenizer"
+path  = "src/main.rs"
+
+[dependencies]
+# vsock: Safe Rust bindings for AF_VSOCK sockets
+vsock    = "0.3"
+
+# Typed protocol: deserialize requests, serialize responses
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Cryptographically secure random bytes for TKN_ token generation.
+# On Nitro Enclave, reads from the hardware RNG injected by the hypervisor.
+getrandom = "0.2"
+hex       = "0.4"
+
+# Ed25519 signing — ephemeral keypair generated on enclave boot.
+# The signing key lives ONLY in volatile RAM. It is NEW on every enclave start.
+# `rand_core` feature needed for keypair generation.
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+
+# SHA-256 hashing of input/output payloads for the receipt commitment
+sha2 = "0.10"
+
+# Constant-time base64 for encoding the Ed25519 signature in the JSON receipt
+base64ct = { version = "1", features = ["alloc"] }
+
+# PII pattern matching — compiled once at startup, reused across all connections
+regex = { version = "1", default-features = false, features = ["std"] }
+
+# Shamir's Secret Sharing — GF(2^8) Lagrange interpolation.
+# 2-of-3 threshold split per PII entity so no single memory space holds the full secret.
+# Pure Rust, no unsafe code, musl-compatible.
+sharks = { version = "0.5", default-features = false }
+
+# Ergonomic error propagation
+anyhow = "1"
+
+# Structured, leveled log output — no plaintext payload logging
+tracing           = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Differential Privacy (Laplace noise generation)
+rand       = "0.8"
+rand_distr = "0.4"
+rand_core  = { version = "0.6", features = ["getrandom"] }
+
+# V11: Cryptographic zeroization of sensitive memory regions.
+# Ensures token→plaintext mappings are wiped to zeros (not just freed)
+# when a session expires, preventing cold-memory and swap-file recovery.
+zeroize = { version = "1.8", features = ["derive"] }
+
+
+[profile.release]
+# Strip debug symbols from the enclave binary to minimize EIF image size
+strip    = true
+opt-level = 3

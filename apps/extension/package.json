@@ -1,0 +1,25 @@
+{
+  "name": "@streetmp-os/extension",
+  "version": "94.0.0",
+  "description": "StreetMP Security Shield — Zero-Trust Browser Extension (V94)",
+  "private": true,
+  "scripts": {
+    "dev":        "vite build --watch --mode development",
+    "build":      "vite build --mode production",
+    "build:ext":  "vite build --mode production",
+    "type-check": "tsc --noEmit",
+    "zip":        "cd dist && zip -r ../streetmp-shield-v94.zip . -x '*.map'"
+  },
+  "dependencies": {
+    "react":     "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/chrome":        "^0.0.268",
+    "@types/react":         "^18.3.3",
+    "@types/react-dom":     "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript":           "^5.5.3",
+    "vite":                 "^5.3.4"
+  }
+}

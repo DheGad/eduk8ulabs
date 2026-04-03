@@ -1,0 +1,59 @@
+# ==============================================================================
+# V46 STREETMP OS: ENTERPRISE BYOC COMPOSE
+# ==============================================================================
+# Provisions the complete StreetMP Sovereign Stack in an absolutely
+# disconnected, air-gapped internal Docker custom network. No routing to 0.0.0.0/0.
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # StreetMP Dashboard Interface
+  streetmp-web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: smp-web-v46
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - airgap-internal
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      # Local RPC calls only
+      - NEXT_PUBLIC_OS_KERNEL_URL=http://streetmp-os:4000
+    depends_on:
+      - streetmp-os
+
+  # StreetMP OS Kernel (Policy / Proxy Router / Vault / Engine)
+  streetmp-os:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.kernel # Hypothetical dedicated kernel dockerfile
+    container_name: smp-kernel-v46
+    restart: always
+    expose:
+      - "4000"
+    networks:
+      - airgap-internal
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis-mock:6379
+      - VAULT_SYNC_MODE=OFFLINE
+
+  # Local Key-Value store simulating Vault/Redis state in airgap
+  redis-mock:
+    image: redis:alpine
+    container_name: smp-redis-v46
+    networks:
+      - airgap-internal
+    expose:
+      - "6379"
+
+networks:
+  # V46 Air-Gapped Topology
+  airgap-internal:
+    driver: bridge
+    internal: true # <--- MATHEMATICALLY DROPS ALL EXTERNAL TCP/UDP PACKETS

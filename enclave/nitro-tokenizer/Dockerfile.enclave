@@ -1,0 +1,53 @@
+# ============================================================
+# StreetMP Sovereign OS — V8 Nitro Enclave Image
+# Multi-Stage Build for Deterministic Compilation
+#
+# Stage 1: Builder — compiles a fully statically linked binary
+#          targeting x86_64-unknown-linux-musl.
+# Stage 2: Runtime — bare Alpine image containing ONLY the
+#          compiled binary. Zero-bloat for minimal attack surface.
+#
+# Build command (see ../build-enclave.sh):
+#   docker build -t streetmp-enclave -f Dockerfile.enclave .
+# ============================================================
+
+# ── Stage 1: Builder ─────────────────────────────────────────────────────────
+FROM rust:alpine AS builder
+
+# musl-dev provides the musl libc toolchain needed for
+# fully static binaries on the musl target.
+RUN apk add --no-cache musl-dev
+
+# Pre-install the musl cross-target.
+RUN rustup target add x86_64-unknown-linux-musl
+
+WORKDIR /build
+
+# Copy manifests first so dependency layers are cached
+# even when source code changes (layer-cache optimisation).
+COPY Cargo.toml Cargo.lock ./
+
+# Stub src so Cargo can resolve the workspace without copying all source.
+RUN mkdir src && echo 'fn main(){}' > src/main.rs \
+    && cargo build --release --target x86_64-unknown-linux-musl \
+    && rm -f target/x86_64-unknown-linux-musl/release/deps/nitro_tokenizer*
+
+# Now copy the real source code and do a final release build.
+COPY src ./src
+RUN cargo build --release --target x86_64-unknown-linux-musl
+
+# ── Stage 2: Runtime ──────────────────────────────────────────────────────────
+# Alpine chosen over scratch so we can include minimal C runtime
+# and a shell for controlled nitro-cli inspection (attestation validates PCR0).
+FROM alpine:latest
+
+# Copy ONLY the compiled binary — No shell utils, no package managers.
+COPY --from=builder \
+    /build/target/x86_64-unknown-linux-musl/release/nitro-tokenizer \
+    /usr/local/bin/nitro-tokenizer
+
+# The vsock listener binds on port 5000 internally.
+# (AWS Nitro does not use host networking; this EXPOSE is documentation only.)
+EXPOSE 5000
+
+ENTRYPOINT ["/usr/local/bin/nitro-tokenizer"]

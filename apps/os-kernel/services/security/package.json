@@ -1,0 +1,14 @@
+{
+  "name": "@streetmp-os/security-service",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "StreetMP OS Security Service",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

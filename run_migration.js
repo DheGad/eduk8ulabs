@@ -1,0 +1,1 @@
+const {Client}=require("pg");const fs=require("fs");require("dotenv").config();const c=new Client({connectionString:process.env.DATABASE_URL});c.connect().then(()=>c.query(fs.readFileSync("apps/os-kernel/services/router-service/src/sentinel/migrations/006_system_admins.sql","utf8"))).then(()=>console.log("Migrated")).catch(e=>console.error(e)).finally(()=>c.end());

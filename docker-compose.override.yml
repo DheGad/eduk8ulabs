@@ -1,0 +1,66 @@
+# ============================================================
+# docker-compose.override.yml — Watchtower Watchdog
+# ============================================================
+#
+# Docker Compose merges this file with docker-compose.prod.yml
+# automatically when both are present in the same directory.
+#
+# Watchtower polls the local Docker daemon every 30 seconds and
+# restarts any container whose image has been updated.
+#
+# IMPORTANT:
+#   - Watchtower restarts containers in-place. For zero-downtime
+#     you should pair it with a health check and a reverse proxy
+#     that can drain connections (e.g. Nginx upstream keepalive).
+#   - Set WATCHTOWER_SCOPE to restrict Watchtower to only the
+#     containers in this compose project (avoids touching unrelated
+#     containers on a shared host).
+# ============================================================
+
+version: "3.9"
+
+services:
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: streetmp_watchtower
+    restart: unless-stopped
+
+    volumes:
+      # Watchtower needs access to the Docker socket
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    environment:
+      # Only watch containers with the label
+      # "com.centurylinklabs.watchtower.enable=true"
+      WATCHTOWER_LABEL_ENABLE: "true"
+
+      # Check for new images every 60 seconds
+      WATCHTOWER_POLL_INTERVAL: "60"
+
+      # Clean up old images after updating (saves disk space)
+      WATCHTOWER_CLEANUP: "true"
+
+      # Log level: panic, fatal, error, warn, info, debug, trace
+      WATCHTOWER_LOG_LEVEL: "info"
+
+      # HTTP-based health check endpoint for Watchtower itself
+      WATCHTOWER_HTTP_API_METRICS: "true"
+      WATCHTOWER_HTTP_API_TOKEN: "${WATCHTOWER_API_TOKEN:-changeme}"
+
+    labels:
+      # Prevent Watchtower from watching itself (avoids restart loops)
+      com.centurylinklabs.watchtower.enable: "false"
+
+    # Restrict network access — Watchtower doesn't need internet
+    # if you're using local images. Remove if pulling from a registry.
+    networks:
+      - streetmp_internal
+
+  # ── Label the router-service so Watchtower monitors it ────────
+  router-service:
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+
+networks:
+  streetmp_internal:
+    external: true

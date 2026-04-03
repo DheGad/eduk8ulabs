@@ -1,0 +1,52 @@
+# ============================================================
+# NeMo Guardrails — Titan Perimeter Configuration
+# ============================================================
+#
+# config.yml — Main engine configuration for the NeMo Guardrails
+# cognitive firewall sidecar (nemo_sidecar.py).
+#
+# Reference: https://docs.nvidia.com/nemo/guardrails/latest/
+# ============================================================
+
+# ── Model used for rail evaluation ────────────────────────────
+models:
+  - type: main
+    engine: openai
+    model: gpt-4o-mini          # Fast, cheap — rails eval only, not user-facing
+    # API key is injected via OPENAI_API_KEY env var at runtime
+
+# ── Core Rail Definitions ─────────────────────────────────────
+rails:
+  # Input rails fire before the user message reaches any LLM
+  input:
+    flows:
+      - titan_jailbreak_check
+      - titan_pii_check
+      - titan_topic_check
+
+  # Output rails fire before the assistant response is returned
+  output:
+    flows:
+      - titan_output_pii_scrub
+      - titan_output_topic_check
+
+# ── Sensitive Data Patterns (built-in NeMo PII detection) ─────
+# These are handled structurally in rails.co — listed here for docs.
+# NeMo will use its own classifiers for PERSON / ORG / CREDIT_CARD etc.
+sensitive_data_detection:
+  input:
+    entities:
+      - CREDIT_CARD
+      - SSN
+      - EMAIL_ADDRESS
+      - PHONE_NUMBER
+      - US_PASSPORT
+      - CRYPTO
+  output:
+    entities:
+      - CREDIT_CARD
+      - SSN
+
+# ── Logging ────────────────────────────────────────────────────
+logging:
+  flows: true        # Log rail decisions to stdout for audit

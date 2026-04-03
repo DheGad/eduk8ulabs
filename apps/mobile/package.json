@@ -1,0 +1,33 @@
+{
+  "name": "@streetmp-os/mobile",
+  "version": "93.0.0",
+  "description": "StreetMP OS — Sovereign Zero-Trust Mobile Shell (V93)",
+  "private": true,
+  "scripts": {
+    "build":      "next build && next export -o out",
+    "mobile:ios":     "npx cap sync ios && npx cap run ios",
+    "mobile:android": "npx cap sync android && npx cap run android",
+    "mobile:sync":    "npx cap sync",
+    "mobile:open:ios":     "npx cap open ios",
+    "mobile:open:android": "npx cap open android",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@capacitor/android":                    "^6.1.0",
+    "@capacitor/app":                        "^6.0.0",
+    "@capacitor/cli":                        "^6.1.0",
+    "@capacitor/core":                       "^6.1.0",
+    "@capacitor/haptics":                    "^6.0.0",
+    "@capacitor/ios":                        "^6.1.0",
+    "@capacitor/keyboard":                   "^6.0.0",
+    "@capacitor/preferences":                "^6.0.0",
+    "@capacitor/push-notifications":         "^6.0.0",
+    "@capacitor/splash-screen":              "^6.0.0",
+    "@capacitor/status-bar":                 "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets":                     "^3.0.5",
+    "@types/node":                           "^20.14.0",
+    "typescript":                            "^5.5.3"
+  }
+}

@@ -1,0 +1,59 @@
+# ============================================================
+# Streetmp OS — Docker Compose (Local Development)
+# ============================================================
+# Starts the PostgreSQL database with persistent storage.
+# The 5 Node.js services and Next.js are managed by Turborepo
+# (npm run dev:services) and run natively on the host.
+#
+# Usage:
+#   npm run db:up      → Start PostgreSQL in background
+#   npm run db:down    → Stop and remove containers
+#   npm run db:logs    → Tail PostgreSQL logs
+#   npm run db:reset   → ⚠️  Wipe database data and restart
+# ============================================================
+
+services:
+  postgres-vault:
+    image: postgres:15-alpine
+    container_name: streetmp_postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-streetmp}
+      POSTGRES_PASSWORD: ${DB_PASS:-streetmp_dev_password}
+      POSTGRES_DB: ${DB_NAME:-streetmp_os}
+      # Performance tuning for local dev
+      POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256"
+    volumes:
+      # Named volume — data survives container restarts and rebuilds
+      - postgres_data:/var/lib/postgresql/data
+      # Auto-execute schema on first boot (container is fresh)
+      - ./packages/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-streetmp} -d ${DB_NAME:-streetmp_os}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - streetmp_net
+
+  nemo-service:
+    build: ./apps/nemo-service
+    container_name: streetmp_nemo_engine
+    ports:
+      - "8001:8001"
+    networks:
+      - streetmp_net
+    restart: unless-stopped
+
+volumes:
+  # Named volume ensures: docker-compose down does NOT wipe data.
+  # To fully reset: npm run db:reset (runs docker-compose down -v)
+  postgres_data:
+    driver: local
+
+networks:
+  streetmp_net:
+    driver: bridge

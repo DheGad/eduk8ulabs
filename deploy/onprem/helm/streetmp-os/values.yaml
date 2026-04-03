@@ -1,0 +1,169 @@
+# =============================================================================
+# StreetMP OS Helm Chart — values.yaml
+# V100 Sovereign Datacenter (On-Premises) Edition
+# =============================================================================
+
+global:
+  imageRegistry: ""           # Empty for local K3s cache (air-gapped). Set for registry push.
+  imagePullSecrets: []
+  storageClass: "local-path"  # K3s default. Change to your storage class.
+  namespace: "streetmp-system"
+
+# ── Replica Counts ───────────────────────────────────────────────
+replicaCount:
+  web: 2
+  routerService: 2
+  billingService: 1
+  vaultService: 1
+  sanitizerService: 1
+  ollamaService: 1            # GPU-constrained — 1 replica unless using GPU node pool
+
+# ── Image Tags ───────────────────────────────────────────────────
+images:
+  web:
+    repository: streetmp-os/web
+    tag: "v100"
+    pullPolicy: IfNotPresent
+  routerService:
+    repository: streetmp-os/router-service
+    tag: "v100"
+    pullPolicy: IfNotPresent
+  billingService:
+    repository: streetmp-os/billing
+    tag: "v100"
+    pullPolicy: IfNotPresent
+  vaultService:
+    repository: streetmp-os/vault-service
+    tag: "v100"
+    pullPolicy: IfNotPresent
+  sanitizerService:
+    repository: streetmp-os/sanitizer-service
+    tag: "v100"
+    pullPolicy: IfNotPresent
+  ollama:
+    # This is the pre-baked image produced by package-sdc.sh
+    repository: streetmp-os/ollama-sovereign
+    tag: "v100"
+    pullPolicy: IfNotPresent
+  postgres:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+  redis:
+    repository: redis
+    tag: "7-alpine"
+    pullPolicy: IfNotPresent
+
+# ── Service Ports ────────────────────────────────────────────────
+ports:
+  web: 3000
+  routerService: 4000
+  billingService: 4010
+  vaultService: 4002
+  ollamaService: 11434
+  postgres: 5432
+  redis: 6379
+
+# ── Ingress ──────────────────────────────────────────────────────
+ingress:
+  enabled: true
+  className: "traefik"        # K3s default ingress class
+  host: "os.streetmp.local"   # Override with your internal DNS or IP
+  tls:
+    enabled: false            # Set true + provide cert secret for TLS termination
+    secretName: "streetmp-tls"
+
+# ── PersistentVolumeClaims ───────────────────────────────────────
+persistence:
+  postgres:
+    enabled: true
+    size: 50Gi
+    accessMode: ReadWriteOnce
+  redis:
+    enabled: true
+    size: 5Gi
+    accessMode: ReadWriteOnce
+  merkleVault:               # V35 Merkle Vault persistent storage
+    enabled: true
+    size: 20Gi
+    accessMode: ReadWriteOnce
+  ollamaModels:              # Pre-baked model storage (populated from image)
+    enabled: true
+    size: 30Gi
+    accessMode: ReadWriteOnce
+
+# ── Resource Limits ──────────────────────────────────────────────
+resources:
+  web:
+    requests: { cpu: "250m", memory: "512Mi" }
+    limits:   { cpu: "1",    memory: "1Gi" }
+  routerService:
+    requests: { cpu: "500m", memory: "512Mi" }
+    limits:   { cpu: "2",    memory: "2Gi" }
+  billingService:
+    requests: { cpu: "100m", memory: "256Mi" }
+    limits:   { cpu: "500m", memory: "512Mi" }
+  vaultService:
+    requests: { cpu: "100m", memory: "256Mi" }
+    limits:   { cpu: "500m", memory: "512Mi" }
+  sanitizerService:
+    requests: { cpu: "250m", memory: "256Mi" }
+    limits:   { cpu: "1",    memory: "1Gi" }
+  ollama:
+    requests: { cpu: "2",    memory: "8Gi" }
+    limits:   { cpu: "4",    memory: "12Gi" }
+    # Uncomment for GPU support (requires nvidia device plugin):
+    # nvidia.com/gpu: "1"
+  postgres:
+    requests: { cpu: "250m", memory: "512Mi" }
+    limits:   { cpu: "1",    memory: "2Gi" }
+  redis:
+    requests: { cpu: "100m", memory: "128Mi" }
+    limits:   { cpu: "500m", memory: "512Mi" }
+
+# ── Namespace Resource Quota ────────────────────────────────────
+resourceQuota:
+  enabled: true
+  hard:
+    requests.cpu: "8"
+    requests.memory: "24Gi"
+    limits.cpu: "16"
+    limits.memory: "32Gi"
+    pods: "30"
+    services: "20"
+    persistentvolumeclaims: "10"
+
+# ── Environment / Secrets ─────────────────────────────────────────
+# Provide via --set or a sealed-secrets manifest in production
+env:
+  jwtSecret: "CHANGE_ME_PLEASE"
+  adminSecret: "CHANGE_ME_PLEASE"
+  stripeSecretKey: ""
+  stripeWebhookSecret: ""
+  resendApiKey: ""
+  databaseUrl: "postgresql://streetmp:streetmp@streetmp-postgres:5432/streetmp_os"
+  redisUrl: "redis://streetmp-redis:6379"
+  ollamaBaseUrl: "http://streetmp-ollama:11434"
+  routerServiceUrl: "http://streetmp-router:4000"
+
+# ── Liveness / Readiness Probes ──────────────────────────────────
+probes:
+  enabled: true
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+# ── Hardware License Enforcement ────────────────────────────────
+licensing:
+  enabled: true
+  licensePath: "/etc/streetmp/license.blob"
+  # Mount the license blob via a K8s Secret:
+  secretName: "streetmp-license"
+  secretKey: "license.blob"

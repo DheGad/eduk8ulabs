@@ -1,0 +1,20 @@
+apiVersion: v2
+name: streetmp-os
+description: StreetMP OS — Sovereign AI Infrastructure Platform (Air-Gapped SDC Edition)
+type: application
+version: 100.0.0
+appVersion: "V100"
+keywords:
+  - ai-governance
+  - sovereign-ai
+  - enterprise
+  - air-gapped
+maintainers:
+  - name: StreetMP OS Build System
+    email: build@streetmp.com
+home: https://os.streetmp.com
+sources:
+  - https://github.com/streetmp/os
+annotations:
+  artifacthub.io/license: Proprietary
+  artifacthub.io/prerelease: "false"

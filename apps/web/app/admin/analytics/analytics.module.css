@@ -1,0 +1,60 @@
+/* KPI card glow overlays — top-right radial accent */
+.kpiGlowIndigo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6rem;
+  height: 6rem;
+  background: rgba(99, 102, 241, 0.05);
+  border-bottom-left-radius: 100%;
+}
+
+.kpiGlowYellow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6rem;
+  height: 6rem;
+  background: rgba(234, 179, 8, 0.05);
+  border-bottom-left-radius: 100%;
+}
+
+.kpiGlowEmerald {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6rem;
+  height: 6rem;
+  background: rgba(16, 185, 129, 0.05);
+  border-bottom-left-radius: 100%;
+}
+
+/* Mini decorative bars inside the Active Tenants card */
+.bar-0 { height: 10px; }
+.bar-1 { height: 14px; }
+.bar-2 { height: 18px; }
+.bar-3 { height: 12px; }
+.bar-4 { height: 22px; }
+.bar-5 { height: 16px; }
+.bar-6 { height: 20px; }
+.bar-7 { height: 8px; }
+
+/* Burn progress bar colours */
+.burnBarRed {
+  background: linear-gradient(to right, #dc2626, #f87171);
+}
+
+.burnBarYellow {
+  background: linear-gradient(to right, #ca8a04, #facc15);
+}
+
+.burnBarGreen {
+  background: linear-gradient(to right, #065f46, #34d399);
+}
+
+/* The yellow global burn bar width is driven by a data-attr to avoid inline style.
+   Next.js CSS Modules require a fixed class — we use a generic width class here
+   and set the actual percentage via the style prop on the element only for width. */
+.burnBar {
+  transition: width 0.7s ease;
+}

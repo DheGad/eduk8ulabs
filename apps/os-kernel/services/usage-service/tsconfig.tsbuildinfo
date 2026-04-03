@@ -1,0 +1,1 @@
+{"root":["./src/analytics.ts","./src/billing.ts","./src/db.ts","./src/index.ts","./src/ledger.ts","./src/metrics.ts","./src/pricing.ts","./src/routes.ts","./src/telemetry.ts","./src/trace.ts"],"errors":true,"version":"5.9.3"}

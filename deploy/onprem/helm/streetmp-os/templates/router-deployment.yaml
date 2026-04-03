@@ -1,0 +1,101 @@
+{{/*
+  StreetMP OS — router-deployment.yaml
+  Core API gateway and request processing engine (V01–V99).
+*/}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streetmp-router
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: streetmp-router
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: {{ .Values.replicaCount.routerService }}
+  selector:
+    matchLabels:
+      app: streetmp-router
+  template:
+    metadata:
+      labels:
+        app: streetmp-router
+    spec:
+      containers:
+        - name: router-service
+          image: "{{ .Values.images.routerService.repository }}:{{ .Values.images.routerService.tag }}"
+          imagePullPolicy: {{ .Values.images.routerService.pullPolicy }}
+          ports:
+            - containerPort: 4000
+              name: http
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: DATABASE_URL
+              value: {{ .Values.env.databaseUrl | quote }}
+            - name: REDIS_URL
+              value: {{ .Values.env.redisUrl | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: streetmp-app-secrets
+                  key: JWT_SECRET
+            - name: STREETMP_ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: streetmp-app-secrets
+                  key: ADMIN_SECRET
+            - name: OLLAMA_BASE_URL
+              value: {{ .Values.env.ollamaBaseUrl | quote }}
+            {{- if .Values.licensing.enabled }}
+            - name: LICENSE_PATH
+              value: {{ .Values.licensing.licensePath | quote }}
+            {{- end }}
+          resources:
+            requests:
+              cpu: {{ .Values.resources.routerService.requests.cpu | quote }}
+              memory: {{ .Values.resources.routerService.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.resources.routerService.limits.cpu | quote }}
+              memory: {{ .Values.resources.routerService.limits.memory | quote }}
+          livenessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 4000
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 4000
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+          {{- if .Values.licensing.enabled }}
+          volumeMounts:
+            - name: license-blob
+              mountPath: /etc/streetmp
+              readOnly: true
+          {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.licensing.enabled }}
+      volumes:
+        - name: license-blob
+          secret:
+            secretName: {{ .Values.licensing.secretName }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: streetmp-router
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: streetmp-router
+  ports:
+    - port: 4000
+      targetPort: 4000
+      name: http
+  type: ClusterIP

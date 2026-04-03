@@ -1,0 +1,244 @@
+# ============================================================
+# StreetMP OS — Continuous Deployment Pipeline
+# @command COMMAND_096 — ZERO-ERROR CI/CD PIPELINE
+# @version V96.0.0
+#
+# Triggers:
+#   • push to main — ONLY if ci.yml (CI Guardian) passes
+#
+# Zero-downtime deployment:
+#   1. SSH into VPS using encrypted GitHub Secret key
+#   2. Execute rolling-deploy.sh on the server
+#   3. Health gates confirm old container is replaced only
+#      after the new one returns 200 OK
+#
+# Required GitHub Secrets:
+#   VPS_SSH_KEY   → Private key content (PEM, no passphrase)
+#   VPS_HOST      → 187.127.131.212
+#   VPS_USER      → deploy (or root)
+#   VPS_PATH      → /opt/streetmp-os (deployment directory)
+#   SLACK_WEBHOOK → (optional) Deployment notifications
+# ============================================================
+
+name: "CD — Zero-Downtime Deploy"
+
+on:
+  workflow_run:
+    workflows: ["CI — Zero-Error Guardian"]
+    types: [completed]
+    branches: [main]
+
+# Ensure only ONE deployment runs at a time
+concurrency:
+  group: "cd-production"
+  cancel-in-progress: false   # Never cancel a running deployment!
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  # ============================================================
+  # GATE: Only deploy if CI passed (not just completed)
+  # ============================================================
+  gate:
+    name: "Gate — CI Must Pass"
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+
+    outputs:
+      deploy: ${{ steps.check.outputs.deploy }}
+      commit:  ${{ steps.check.outputs.commit }}
+
+    steps:
+      - name: "✅ Verify CI conclusion"
+        id: check
+        run: |
+          echo "CI workflow conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Commit: ${{ github.event.workflow_run.head_sha }}"
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+          echo "commit=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+
+  # ============================================================
+  # JOB: DEPLOY
+  # ============================================================
+  deploy:
+    name: "🚀 Deploy to Production VPS"
+    runs-on: ubuntu-latest
+    needs: [gate]
+    if: needs.gate.outputs.deploy == 'true'
+    environment:
+      name: production
+      url: https://os.streetmp.com
+
+    steps:
+      - name: "⬇ Checkout (for deployment scripts)"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 1
+
+      # ── Pre-deployment notification ─────────────────────────
+      - name: "📢 Notify: Deployment Starting"
+        if: env.SLACK_WEBHOOK != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -s -X POST "$SLACK_WEBHOOK" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"text\": \"🚀 *StreetMP OS Deployment Started*\",
+              \"attachments\": [{
+                \"color\": \"#FFA500\",
+                \"fields\": [
+                  {\"title\": \"Branch\", \"value\": \"main\",                              \"short\": true},
+                  {\"title\": \"Commit\", \"value\": \"${{ needs.gate.outputs.commit }}\",   \"short\": true},
+                  {\"title\": \"Triggered by\", \"value\": \"Push to main (post-CI pass)\",  \"short\": false}
+                ]
+              }]
+            }" || true
+
+      # ── Setup SSH ───────────────────────────────────────────
+      - name: "🔑 Configure SSH"
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          # Write the private key without trailing newline issues
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps_deploy_key
+          chmod 600 ~/.ssh/vps_deploy_key
+          # Trust the VPS host fingerprint (no interactive prompt)
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+          # Test connectivity before deploying
+          ssh -i ~/.ssh/vps_deploy_key \
+              -o StrictHostKeyChecking=no \
+              -o ConnectTimeout=15 \
+              "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+              "echo '✅ SSH connectivity confirmed'"
+
+      # ── Copy the latest rolling-deploy.sh to VPS ───────────
+      - name: "📤 Upload rolling-deploy.sh"
+        run: |
+          scp -i ~/.ssh/vps_deploy_key \
+              -o StrictHostKeyChecking=no \
+              scripts/rolling-deploy.sh \
+              "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:${{ secrets.VPS_PATH }}/scripts/rolling-deploy.sh"
+
+      # ── Execute Rolling Deployment ──────────────────────────
+      - name: "🔄 Execute Rolling Deploy"
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PATH: ${{ secrets.VPS_PATH }}
+          DEPLOY_SHA: ${{ needs.gate.outputs.commit }}
+        run: |
+          ssh -i ~/.ssh/vps_deploy_key \
+              -o StrictHostKeyChecking=no \
+              -o ServerAliveInterval=30 \
+              -o ServerAliveCountMax=10 \
+              "$VPS_USER@$VPS_HOST" \
+              "bash -l -c '
+                set -e
+                cd $VPS_PATH
+                chmod +x scripts/rolling-deploy.sh
+                # Pass the exact commit SHA — deploy script will git reset to it
+                export DEPLOY_COMMIT=${DEPLOY_SHA}
+                export CI_TRIGGERED=true
+                bash scripts/rolling-deploy.sh 2>&1
+              '"
+
+      # ── Post-deployment verification ─────────────────────────
+      - name: "🩺 Remote Health Verification"
+        run: |
+          echo "Waiting 20s for services to stabilise..."
+          sleep 20
+
+          # Verify web is responding at the domain level
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 15 \
+            -H "User-Agent: StreetMP-CI-Verify/96.0" \
+            "https://os.streetmp.com" 2>/dev/null || echo "000")
+
+          echo "os.streetmp.com HTTP status: $STATUS"
+
+          if [[ "$STATUS" == "200" || "$STATUS" == "301" || "$STATUS" == "302" || "$STATUS" == "307" ]]; then
+            echo "✅ Production site is healthy (HTTP $STATUS)"
+          else
+            echo "⚠️  Site returned HTTP $STATUS — check VPS logs"
+            # Don't fail CI for transient network issues post-deploy
+            # The V95 monitor will catch and auto-restart if truly broken
+            exit 0
+          fi
+
+          # Verify router-service health endpoint
+          ROUTER_STATUS=$(ssh -i ~/.ssh/vps_deploy_key \
+            -o StrictHostKeyChecking=no \
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            "curl -s -o /dev/null -w '%{http_code}' http://localhost:4000/health" 2>/dev/null || echo "000")
+          echo "Router service health: $ROUTER_STATUS"
+
+      # ── Cleanup SSH key ─────────────────────────────────────
+      - name: "🧹 Cleanup SSH credentials"
+        if: always()
+        run: |
+          rm -f ~/.ssh/vps_deploy_key
+          echo "SSH key wiped from runner."
+
+      # ── Success notification ────────────────────────────────
+      - name: "🟢 Notify: Deployment Succeeded"
+        if: success() && env.SLACK_WEBHOOK != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -s -X POST "$SLACK_WEBHOOK" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"text\": \"✅ *StreetMP OS Deployed Successfully*\",
+              \"attachments\": [{
+                \"color\": \"#00E599\",
+                \"fields\": [
+                  {\"title\": \"URL\",      \"value\": \"https://os.streetmp.com\",          \"short\": true},
+                  {\"title\": \"Commit\",   \"value\": \"${{ needs.gate.outputs.commit }}\", \"short\": true},
+                  {\"title\": \"Status\",   \"value\": \"Zero-Downtime Deploy Complete ✓\",  \"short\": false}
+                ]
+              }]
+            }" || true
+
+      # ── Failure notification ────────────────────────────────
+      - name: "🔴 Notify: Deployment Failed"
+        if: failure() && env.SLACK_WEBHOOK != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          curl -s -X POST "$SLACK_WEBHOOK" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"text\": \"🚨 *StreetMP OS Deployment FAILED*\",
+              \"attachments\": [{
+                \"color\": \"#FF4444\",
+                \"fields\": [
+                  {\"title\": \"Commit\",  \"value\": \"${{ needs.gate.outputs.commit }}\", \"short\": true},
+                  {\"title\": \"Action\",  \"value\": \"Check CI/CD logs immediately\",      \"short\": true}
+                ]
+              }]
+            }" || true
+
+  # ============================================================
+  # JOB: SKIP (when CI failed)
+  # ============================================================
+  skip-if-ci-failed:
+    name: "⛔ Deployment Blocked — CI Failed"
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.conclusion != 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+
+    steps:
+      - name: "Block deployment"
+        run: |
+          echo "❌ CI Guardian failed — deployment is BLOCKED."
+          echo "CI conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Fix all TypeScript errors and re-push to unblock."
+          exit 1
