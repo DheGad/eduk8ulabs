@@ -118,11 +118,11 @@ export default function HomePage() {
 
           {/* ── Middle Nav Links (hidden below xl) ── */}
           <div className="hidden xl:flex items-center justify-center gap-x-8 flex-1 px-8 text-sm font-medium">
-            <Link href="#why-it-matters"          className="text-white/80 hover:text-white transition-colors">Why It Matters</Link>
-            <Link href="/architecture/nemo-claw"  className="text-white/80 hover:text-violet-400 transition-colors">Architecture</Link>
-            <Link href="/demo/runtime-replay"     className="text-white/80 hover:text-emerald-400 transition-colors">Live Replay</Link>
-            <Link href="/research"                className="text-white/80 hover:text-sky-400 transition-colors">Research</Link>
-            <Link href="/stp"                     className="text-white/80 hover:text-white transition-colors">STP Protocol</Link>
+            <Link href="#how-it-works"   className="text-white/80 hover:text-white transition-colors">How It Works</Link>
+            <Link href="#why-it-matters" className="text-white/80 hover:text-emerald-400 transition-colors">Why It Matters</Link>
+            <Link href="#extension"      className="text-white/80 hover:text-sky-400 transition-colors">Extension</Link>
+            <Link href="#pricing"        className="text-white/80 hover:text-white transition-colors">Pricing</Link>
+            <Link href="/docs"           className="text-white/80 hover:text-violet-400 transition-colors">Docs</Link>
           </div>
 
           {/* ── Right CTAs (always visible on mobile onwards) ── */}
@@ -243,8 +243,109 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Right column: Cinematic Runtime Theater */}
-          <div id="demo" className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+          {/* Right column: AI Protection Flow Visualization */}
+          <div
+            id="demo"
+            className={`w-full lg:w-auto lg:flex-1 lg:max-w-[520px] shrink-0 transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}
+          >
+            {/* Outer card */}
+            <div className="relative rounded-3xl border border-white/[0.07] bg-gradient-to-b from-white/[0.03] to-transparent p-6 shadow-2xl overflow-hidden">
+              {/* Grid background */}
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px] rounded-3xl" />
+
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[11px] font-mono text-emerald-400 uppercase tracking-widest">Live Protection Active</span>
+                </div>
+                <span className="text-[10px] font-mono text-zinc-600">&lt;14ms latency</span>
+              </div>
+
+              {/* Flow steps */}
+              <div className="flex flex-col gap-3">
+
+                {/* Step 1: Employee prompt */}
+                <div className="group relative rounded-2xl border border-white/[0.06] bg-[#0d0d10] p-4 transition-all hover:border-zinc-500/30">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-white/[0.06] flex items-center justify-center shrink-0 text-base">👤</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest mb-1">Employee Prompt</p>
+                      <p className="text-sm text-zinc-300 leading-relaxed">
+                        Analyze this Q3 report for{" "}
+                        <span className="bg-red-500/20 text-red-400 border border-red-500/30 rounded px-1.5 py-0.5 font-mono text-xs line-through decoration-red-400">
+                          john@acme.com
+                        </span>
+                        {" "}and flag revenue anomalies...
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Arrow + Shield */}
+                <div className="flex items-center justify-center gap-3 py-1">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-500/25 bg-emerald-500/[0.06]">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span className="text-[11px] font-semibold text-emerald-400">StreetMP AI Shield</span>
+                  </div>
+                  <div className="h-px flex-1 bg-gradient-to-l from-transparent via-emerald-500/30 to-transparent" />
+                </div>
+
+                {/* Step 2: Protection applied */}
+                <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.03] p-4">
+                  <p className="text-[11px] font-semibold text-emerald-600 uppercase tracking-widest mb-2">AI Content Filter Applied</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: "PII Removed", icon: "🚫" },
+                      { label: "Policy Checked", icon: "✓" },
+                      { label: "Audit Logged", icon: "📋" },
+                    ].map((tag) => (
+                      <span key={tag.label} className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-3 py-1">
+                        <span>{tag.icon}</span>
+                        {tag.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Arrow down */}
+                <div className="flex justify-center">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-px h-3 bg-emerald-500/30" />
+                    <span className="text-emerald-500/50 text-xs">↓</span>
+                  </div>
+                </div>
+
+                {/* Step 3: Safe AI output */}
+                <div className="rounded-2xl border border-white/[0.06] bg-[#0d0d10] p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0 text-base">🤖</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] font-semibold text-emerald-500 uppercase tracking-widest mb-1">Safe AI Output</p>
+                      <p className="text-sm text-zinc-300 leading-relaxed">
+                        Q3 revenue analysis complete. 3 anomalies detected in APAC region. No sensitive data exposed.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Footer status */}
+              <div className="mt-5 pt-4 flex items-center justify-between" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                  <span className="text-xs font-semibold text-emerald-400">Zero data leaked</span>
+                </div>
+                <span className="text-[10px] font-mono text-zinc-600">Compliant · Audited · Secure</span>
+              </div>
+            </div>
+
+            {/* Caption below card */}
+            <p className="mt-3 text-center text-[11px] text-zinc-600">
+              Every AI interaction your team makes — protected automatically.
+            </p>
           </div>
         </div>
       </section>
