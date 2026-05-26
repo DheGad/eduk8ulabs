@@ -438,7 +438,7 @@ export default function DashboardPage() {
   const [viewingTrace, setViewingTrace] = useState<LocalTrace | null>(null);
 
   const traceCounter = useRef(0);
-  const selectedModelMeta = MODELS.find((m) => m.value === selectedModel)!;
+  const selectedModelMeta = MODELS.find((m) => m.value === selectedModel) || MODELS[0]!;
 
   // ── Load Telemetry Metrics ───────────────────────────────────────
   useEffect(() => {

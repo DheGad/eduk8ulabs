@@ -67,7 +67,7 @@ const CORE_SECTIONS: NavSection[] = [
       },
       {
         href: "/dashboard/workflows",
-        label: "Automation Library",
+        label: "AI Workflows",
         icon: <Store className="w-4 h-4" />,
         sub: "Pre-built enterprise automations",
       },
@@ -86,13 +86,13 @@ const CORE_SECTIONS: NavSection[] = [
     items: [
       {
         href: "/dashboard/security/dlp",
-        label: "AI Policy Rules",
+        label: "AI Protection Engine",
         icon: <ShieldCheck className="w-4 h-4" />,
         sub: "Block PII, control AI access",
       },
       {
         href: "/dashboard/sovereign/audit",
-        label: "Activity Timeline",
+        label: "AI Activity",
         icon: <FileCheck className="w-4 h-4" />,
         sub: "Full tamper-proof audit log",
       },
