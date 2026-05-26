@@ -1,16 +1,17 @@
 module.exports = {
   apps: [
     {
-      name: "streetmp-web",
+      name: "streetmp-os",       // ← matches: pm2 restart streetmp-os
       cwd: "./apps/web",
       script: "npm",
       args: "start",
       watch: false,
       autorestart: true,
+      max_memory_restart: "1G",
       env_production: {
         NODE_ENV: "production",
-        PORT: 3000
-      }
+        PORT: 3000,
+      },
     },
     {
       name: "titan-kernel",
@@ -21,8 +22,8 @@ module.exports = {
       autorestart: true,
       env_production: {
         NODE_ENV: "production",
-        PORT: 5000
-      }
-    }
-  ]
+        PORT: 5000,
+      },
+    },
+  ],
 };
