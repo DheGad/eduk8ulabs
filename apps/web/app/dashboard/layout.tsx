@@ -39,42 +39,44 @@ interface NavSection {
   items: NavItem[];
 }
 
-const NAV_SECTIONS: NavSection[] = [
+// ── Core navigation — always visible ─────────────────────────────
+const CORE_SECTIONS: NavSection[] = [
   {
     group: "Work",
     groupIcon: <Zap className="w-4 h-4" />,
     items: [
       {
-        href: "/dashboard/workspace",
-        label: "AI Workspace",
-        icon: <MessageSquare className="w-4 h-4" />,
-        sub: "No data leaks · Secure chat",
-        badge: "HOT",
-      },
-      {
-        href: "/dashboard/builder",
-        label: "App Builder",
-        icon: <Puzzle className="w-4 h-4" />,
-        sub: "No-code workflow designer",
+        href: "/dashboard/welcome",
+        label: "Get Started",
+        icon: <Rocket className="w-4 h-4" />,
+        sub: "Setup guide & onboarding",
         badge: "NEW",
       },
       {
-        href: "/dashboard/workflows",
-        label: "Workflow store",
-        icon: <Store className="w-4 h-4" />,
-        sub: "Verified enterprise automations",
+        href: "/dashboard/workspace",
+        label: "AI Workspace",
+        icon: <MessageSquare className="w-4 h-4" />,
+        sub: "Secure AI chat — no data leaks",
+        badge: "HOT",
       },
       {
         href: "/dashboard/agents",
-        label: "Agent swarm",
+        label: "AI Assistants",
         icon: <Bot className="w-4 h-4" />,
-        sub: "Autonomous multi-agent orchestration",
+        sub: "Automated AI workflows",
       },
       {
-        href: "/dashboard/welcome",
-        label: "Getting started",
-        icon: <Rocket className="w-4 h-4" />,
-        sub: "Setup guide & onboarding",
+        href: "/dashboard/workflows",
+        label: "Automation Library",
+        icon: <Store className="w-4 h-4" />,
+        sub: "Pre-built enterprise automations",
+      },
+      {
+        href: "/dashboard/builder",
+        label: "Workflow Builder",
+        icon: <Puzzle className="w-4 h-4" />,
+        sub: "Build custom no-code workflows",
+        badge: "NEW",
       },
     ],
   },
@@ -84,57 +86,21 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         href: "/dashboard/security/dlp",
-        label: "Data loss prevention",
+        label: "AI Policy Rules",
         icon: <ShieldCheck className="w-4 h-4" />,
-        sub: "PII detection & redaction",
-      },
-      {
-        href: "/dashboard/security/vault",
-        label: "Encrypted vault",
-        icon: <Database className="w-4 h-4" />,
-        sub: "AES-256 secure key storage",
-      },
-      {
-        href: "/dashboard/security/iam",
-        label: "Zero-trust IAM",
-        icon: <Key className="w-4 h-4" />,
-        sub: "SSO & role-based access control",
-      },
-      {
-        href: "/dashboard/security/pqc",
-        label: "Post-quantum crypto",
-        icon: <Hexagon className="w-4 h-4" />,
-        sub: "Cryptographic lattice protection",
-      },
-      {
-        href: "/dashboard/admin/security",
-        label: "Threat armor",
-        icon: <Crosshair className="w-4 h-4" />,
-        sub: "Leakage elimination & hardening",
-      },
-      {
-        href: "/dashboard/compliance/soc2",
-        label: "SOC 2 exporter",
-        icon: <FileText className="w-4 h-4" />,
-        sub: "Type II audit evidence pack",
+        sub: "Block PII, control AI access",
       },
       {
         href: "/dashboard/sovereign/audit",
-        label: "Audit ledger",
+        label: "Activity Timeline",
         icon: <FileCheck className="w-4 h-4" />,
-        sub: "Merkle-verified compliance proofs",
+        sub: "Full tamper-proof audit log",
       },
       {
-        href: "/dashboard/admin/audit",
-        label: "Compliance console",
-        icon: <FileCheck className="w-4 h-4" />,
-        sub: "Generate compliance certificates",
-      },
-      {
-        href: "/dashboard/admin/traces",
-        label: "Trace engine",
-        icon: <Search className="w-4 h-4" />,
-        sub: "Request timeline & correlation",
+        href: "/dashboard/compliance/soc2",
+        label: "Compliance Reports",
+        icon: <FileText className="w-4 h-4" />,
+        sub: "SOC 2 · HIPAA · ISO 27001",
       },
     ],
   },
@@ -143,117 +109,154 @@ const NAV_SECTIONS: NavSection[] = [
     groupIcon: <Settings className="w-4 h-4" />,
     items: [
       {
-        href: "/dashboard/sovereign",
-        label: "Infrastructure",
-        icon: <Activity className="w-4 h-4" />,
-        sub: "Node health & server stats",
-      },
-      {
-        href: "/dashboard/admin/keys",
-        label: "API keys",
-        icon: <Key className="w-4 h-4" />,
-        sub: "Developer gateway & credentials",
-      },
-      {
-        href: "/dashboard/intelligence/consensus",
-        label: "Cognitive consensus",
-        icon: <Cpu className="w-4 h-4" />,
-        sub: "Live multi-model voting",
-      },
-      {
-        href: "/dashboard/infrastructure/byoc",
-        label: "Private cloud (BYOC)",
-        icon: <Cloud className="w-4 h-4" />,
-        sub: "Private Kubernetes & VPC",
-      },
-      {
-        href: "/dashboard/infrastructure/recovery",
-        label: "Disaster recovery",
-        icon: <Globe className="w-4 h-4" />,
-        sub: "Automated failover & backup",
-      },
-      {
-        href: "/dashboard/security/keys",
-        label: "Key rotation",
-        icon: <RefreshCw className="w-4 h-4" />,
-        sub: "AES-256 key lifecycle management",
-      },
-      {
-        href: "/dashboard/settings/branding",
-        label: "Brand customizer",
-        icon: <Palette className="w-4 h-4" />,
-        sub: "White-label theme engine",
-      },
-      {
         href: "/dashboard/settings/organization",
-        label: "Organization",
+        label: "Team & Members",
         icon: <Building2 className="w-4 h-4" />,
-        sub: "Members & team invites",
+        sub: "Invite people, manage seats",
         badge: "NEW",
       },
       {
-        href: "/dashboard/admin/ops-assistant",
-        label: "Ops assistant",
-        icon: <UserCog className="w-4 h-4" />,
-        sub: "AI site reliability — owner only",
+        href: "/dashboard/admin/keys",
+        label: "API Keys",
+        icon: <Key className="w-4 h-4" />,
+        sub: "Developer credentials & access",
       },
-      {
-        href: "/admin/onprem",
-        label: "Offline admin console",
-        icon: <Factory className="w-4 h-4" />,
-        sub: "Air-gapped on-premise control",
-      },
-    ],
-  },
-  {
-    group: "Grow",
-    groupIcon: <TrendingUp className="w-4 h-4" />,
-    items: [
       {
         href: "/dashboard/analytics",
-        label: "Performance",
+        label: "Usage & Cost",
         icon: <BarChart2 className="w-4 h-4" />,
-        sub: "Benchmarks & usage analytics",
-      },
-      {
-        href: "/dashboard/sovereign/finance",
-        label: "Financial sentinel",
-        icon: <DollarSign className="w-4 h-4" />,
-        sub: "Live cost tracking & FinOps",
+        sub: "AI usage analytics & FinOps",
       },
       {
         href: "/dashboard/developer/integration",
-        label: "API & integration",
+        label: "Integrations",
         icon: <PlugZap className="w-4 h-4" />,
-        sub: "SDK, OpenAI override, docs",
-      },
-      {
-        href: "/dashboard/admin/intelligence",
-        label: "Model connect",
-        icon: <BrainCircuit className="w-4 h-4" />,
-        sub: "Adaptive model weighting",
-      },
-      {
-        href: "/dashboard/intelligence/caching",
-        label: "Semantic cache",
-        icon: <Flash className="w-4 h-4" />,
-        sub: "Vector similarity & cost savings",
-      },
-      {
-        href: "/dashboard/intelligence/rag",
-        label: "Secure RAG",
-        icon: <BookOpen className="w-4 h-4" />,
-        sub: "Vector DB with tenant isolation",
-      },
-      {
-        href: "/dashboard/showcase/trust-light",
-        label: "Trust light",
-        icon: <Sparkles className="w-4 h-4" />,
-        sub: "Live executive showcase",
+        sub: "SDK, OpenAI override, webhooks",
       },
     ],
   },
 ];
+
+// ── Advanced navigation — collapsed by default ────────────────────
+const ADVANCED_ITEMS: NavItem[] = [
+  {
+    href: "/dashboard/security/vault",
+    label: "Secure Vault",
+    icon: <Database className="w-4 h-4" />,
+    sub: "AES-256 encrypted key storage",
+  },
+  {
+    href: "/dashboard/security/iam",
+    label: "Identity & Access",
+    icon: <Key className="w-4 h-4" />,
+    sub: "SSO & role-based access control",
+  },
+  {
+    href: "/dashboard/security/pqc",
+    label: "Advanced Encryption",
+    icon: <Hexagon className="w-4 h-4" />,
+    sub: "Post-quantum cryptography",
+  },
+  {
+    href: "/dashboard/admin/security",
+    label: "Security Center",
+    icon: <Crosshair className="w-4 h-4" />,
+    sub: "Hardening & threat elimination",
+  },
+  {
+    href: "/dashboard/admin/audit",
+    label: "Compliance Console",
+    icon: <FileCheck className="w-4 h-4" />,
+    sub: "Generate compliance certificates",
+  },
+  {
+    href: "/dashboard/admin/traces",
+    label: "Request Inspector",
+    icon: <Search className="w-4 h-4" />,
+    sub: "Request timeline & correlation",
+  },
+  {
+    href: "/dashboard/sovereign",
+    label: "Infrastructure",
+    icon: <Activity className="w-4 h-4" />,
+    sub: "Node health & server stats",
+  },
+  {
+    href: "/dashboard/intelligence/consensus",
+    label: "Model Router",
+    icon: <Cpu className="w-4 h-4" />,
+    sub: "Multi-model routing & weighting",
+  },
+  {
+    href: "/dashboard/infrastructure/byoc",
+    label: "Private Cloud (BYOC)",
+    icon: <Cloud className="w-4 h-4" />,
+    sub: "Private Kubernetes & VPC",
+  },
+  {
+    href: "/dashboard/infrastructure/recovery",
+    label: "Disaster Recovery",
+    icon: <Globe className="w-4 h-4" />,
+    sub: "Automated failover & backup",
+  },
+  {
+    href: "/dashboard/security/keys",
+    label: "Key Rotation",
+    icon: <RefreshCw className="w-4 h-4" />,
+    sub: "AES-256 key lifecycle",
+  },
+  {
+    href: "/dashboard/settings/branding",
+    label: "Branding",
+    icon: <Palette className="w-4 h-4" />,
+    sub: "White-label theme engine",
+  },
+  {
+    href: "/dashboard/admin/intelligence",
+    label: "Model Connect",
+    icon: <BrainCircuit className="w-4 h-4" />,
+    sub: "Adaptive model weighting",
+  },
+  {
+    href: "/dashboard/intelligence/caching",
+    label: "Semantic Cache",
+    icon: <Flash className="w-4 h-4" />,
+    sub: "Vector similarity & cost savings",
+  },
+  {
+    href: "/dashboard/intelligence/rag",
+    label: "Secure RAG",
+    icon: <BookOpen className="w-4 h-4" />,
+    sub: "Private vector database",
+  },
+  {
+    href: "/dashboard/showcase/trust-light",
+    label: "Executive Showcase",
+    icon: <Sparkles className="w-4 h-4" />,
+    sub: "Live demo for leadership",
+  },
+  {
+    href: "/dashboard/admin/ops-assistant",
+    label: "Ops Monitor",
+    icon: <UserCog className="w-4 h-4" />,
+    sub: "AI site reliability — admin only",
+  },
+  {
+    href: "/admin/onprem",
+    label: "On-Premise Admin",
+    icon: <Factory className="w-4 h-4" />,
+    sub: "Air-gapped deployment control",
+  },
+  {
+    href: "/dashboard/sovereign/finance",
+    label: "Financial Monitoring",
+    icon: <DollarSign className="w-4 h-4" />,
+    sub: "Live cost tracking & FinOps",
+  },
+];
+
+// Legacy alias so existing references still work
+const NAV_SECTIONS = CORE_SECTIONS;
 
 // ── Badge colours ────────────────────────────────────────────────────────────
 const BADGE_STYLES: Record<string, string> = {
@@ -273,6 +276,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [brandPrimary, setBrandPrimary] = useState("#10b981");
   const [orgName, setOrgName] = useState("StreetMP");
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+  const [advancedExpanded, setAdvancedExpanded] = useState(false);
 
   // ── V62 Dynamic Branding ───────────────────────────────────────
   useEffect(() => {
@@ -495,6 +499,77 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             );
           })}
+
+          {/* ── Advanced Section (collapsed by default) ─────── */}
+          {!collapsed && (
+            <div className="mt-1">
+              <button
+                id="nav-group-advanced"
+                onClick={() => setAdvancedExpanded((v) => !v)}
+                className="w-full flex items-center justify-between px-3 py-2 mt-2 rounded-lg transition-all"
+                style={{ color: "var(--text-dimmed)" }}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm" style={{ opacity: 0.4 }}>
+                    <Settings className="w-4 h-4" />
+                  </span>
+                  <span className="text-[11px] font-semibold tracking-normal" style={{ color: "var(--text-dimmed)" }}>
+                    Advanced
+                  </span>
+                </div>
+                <span
+                  className={`text-[10px] transition-transform duration-200 ${
+                    advancedExpanded ? "rotate-90" : ""
+                  }`}
+                  style={{ color: "var(--text-dimmed)" }}
+                >
+                  ›
+                </span>
+              </button>
+
+              {advancedExpanded && (
+                <div className="space-y-0.5 mt-0.5">
+                  {ADVANCED_ITEMS.map((item) => {
+                    const active = isItemActive(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        title={item.sub}
+                        className="flex items-center gap-3 rounded-lg transition-all group py-2 pl-3 pr-2"
+                        style={{
+                          background: active ? "var(--bg-active)" : "transparent",
+                          color: active ? "var(--sidebar-active)" : "var(--sidebar-text)",
+                          boxShadow: active ? `inset 3px 0 0 ${brandPrimary}` : "none",
+                        }}
+                      >
+                        <span
+                          className="text-[16px] shrink-0 transition-opacity"
+                          style={{ opacity: active ? 1 : 0.45 }}
+                        >
+                          {item.icon}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p
+                            className="text-[13px] font-medium truncate leading-none"
+                            style={{ color: active ? "var(--sidebar-active)" : "var(--text-secondary)" }}
+                          >
+                            {item.label}
+                          </p>
+                          <p
+                            className="text-[11px] truncate mt-0.5"
+                            style={{ color: "var(--text-dimmed)" }}
+                          >
+                            {item.sub}
+                          </p>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </nav>
 
         {/* Footer */}

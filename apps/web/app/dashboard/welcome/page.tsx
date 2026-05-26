@@ -1,194 +1,377 @@
 "use client";
 
-import React from 'react';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { CheckCircle2, Chrome, Users, ShieldCheck, ArrowRight, Rocket } from "lucide-react";
 
+// ── Step definitions ──────────────────────────────────────────────
 const STEPS = [
   {
+    id: "extension",
     number: 1,
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-      </svg>
-    ),
-    title: "Generate your secure API Key",
-    description: "Create your personal credential to start routing AI requests safely through StreetMP OS. It only takes a few seconds.",
-    action: "Generate Key →",
-    href: "/dashboard/admin/keys",
-    highlight: true,
+    icon: <Chrome className="w-5 h-5" />,
+    title: "Install the Browser Extension",
+    description:
+      "Add StreetMP to Chrome or Edge in 60 seconds. It silently monitors AI usage and enforces your security policy — no VPN, no IT ticket needed.",
+    primaryAction: "Add to Chrome — It's Free",
+    primaryHref:
+      "https://chrome.google.com/webstore/detail/streetmp-os",
+    secondaryAction: "MDM Enterprise Deployment →",
+    secondaryHref: "/docs/mdm-deployment",
+    completionKey: "onboarding_step1_done",
   },
   {
+    id: "team",
     number: 2,
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="16 18 22 12 16 6"/>
-        <polyline points="8 6 2 12 8 18"/>
-      </svg>
-    ),
-    title: "Connect your AI tools in one line",
-    description: "Point your existing OpenAI, Anthropic, or any AI app to our endpoint. No code changes needed — just swap the URL.",
-    action: "View Setup Guide →",
-    href: "/dashboard/developer/integration",
+    icon: <Users className="w-5 h-5" />,
+    title: "Invite Your Team",
+    description:
+      "Invite teammates so they are automatically protected the moment they sign in. You can add more people later from Settings.",
+    primaryAction: "Invite People →",
+    primaryHref: "/dashboard/settings/organization",
+    secondaryAction: "Skip for now",
+    secondaryHref: null,
+    completionKey: "onboarding_step2_done",
   },
   {
+    id: "policy",
     number: 3,
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-      </svg>
-    ),
-    title: "Watch your security dashboard light up",
-    description: "Every AI request is tracked, audited, and protected in real-time. Your compliance log fills up automatically.",
-    action: "Open Dashboard →",
-    href: "/dashboard",
+    icon: <ShieldCheck className="w-5 h-5" />,
+    title: "Set Your First AI Policy",
+    description:
+      "Choose what StreetMP should protect. Enable PII blocking with one click — names, emails, and IDs are removed before they reach any AI tool.",
+    primaryAction: "Create a Policy →",
+    primaryHref: "/dashboard/security/dlp",
+    secondaryAction: "Use recommended defaults",
+    secondaryHref: null,
+    completionKey: "onboarding_step3_done",
   },
 ];
 
+// ── Trust badges ──────────────────────────────────────────────────
+const TRUST_ITEMS = [
+  "SOC 2 Type II",
+  "GDPR Ready",
+  "Zero data retention",
+  "End-to-end encrypted",
+];
+
 export default function WelcomePage() {
+  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  const [activeStep, setActiveStep] = useState(0);
+
+  // Load completion state from localStorage
+  useEffect(() => {
+    const completed = new Set<string>();
+    STEPS.forEach((step) => {
+      if (localStorage.getItem(step.completionKey) === "true") {
+        completed.add(step.id);
+      }
+    });
+    setCompletedSteps(completed);
+    // Set active step to first incomplete
+    const firstIncomplete = STEPS.findIndex((s) => !completed.has(s.id));
+    setActiveStep(firstIncomplete === -1 ? STEPS.length - 1 : firstIncomplete);
+  }, []);
+
+  const markDone = (stepId: string, key: string) => {
+    localStorage.setItem(key, "true");
+    setCompletedSteps((prev) => new Set([...prev, stepId]));
+  };
+
+  const allDone = completedSteps.size >= STEPS.length;
+  const progress = Math.round((completedSteps.size / STEPS.length) * 100);
+
+  const handleFinish = () => {
+    localStorage.setItem("onboarding_completed", "true");
+    localStorage.setItem("v100-walkthrough-done", "true");
+    window.location.href = "/dashboard";
+  };
+
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-6 selection:bg-emerald-500/20 transition-colors duration-300"
+      className="min-h-screen flex flex-col items-center justify-center px-4 py-12 selection:bg-emerald-500/20"
       style={{ background: "var(--bg-canvas)" }}
     >
-
-      {/* Subtle background glow */}
+      {/* Background glow */}
       <div
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] rounded-full pointer-events-none"
-        style={{ background: "radial-gradient(ellipse, rgba(5,150,105,0.06) 0%, transparent 70%)" }}
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse, rgba(5,150,105,0.05) 0%, transparent 70%)",
+        }}
       />
 
-      <main className="relative z-10 max-w-xl w-full">
+      <main className="relative z-10 w-full max-w-2xl">
 
-        {/* Header */}
+        {/* ── Header ─────────────────────────────────────────────── */}
         <header className="text-center mb-10">
           {/* Brand badge */}
           <div
-            className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full text-xs font-semibold uppercase tracking-wider border"
+            className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full text-xs font-semibold border"
             style={{
-              background: "var(--emerald-glow)",
-              borderColor: "rgba(5,150,105,0.25)",
-              color: "var(--brand-primary)"
+              background: "rgba(5,150,105,0.07)",
+              borderColor: "rgba(5,150,105,0.20)",
+              color: "var(--brand-primary)",
             }}
           >
-            <span
-              className="w-1.5 h-1.5 rounded-full animate-pulse"
-              style={{ background: "var(--brand-primary)" }}
-            />
-            Getting Started
+            <Rocket className="w-3 h-3" />
+            Getting Started — 5 minutes to full protection
           </div>
 
           <h1
             className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4 leading-none"
             style={{ color: "var(--text-primary)" }}
           >
-            Welcome to<br />
+            Welcome to{" "}
             <span style={{ color: "var(--brand-primary)" }}>StreetMP OS</span>
           </h1>
 
-          <p className="text-base leading-relaxed max-w-md mx-auto" style={{ color: "var(--text-muted)" }}>
-            Your enterprise AI security platform is ready. Follow these 3 steps to go live — no technical knowledge needed.
+          <p
+            className="text-base leading-relaxed max-w-md mx-auto"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Your team can use any AI tool safely. Follow these 3 steps to
+            activate protection — no technical setup required.
           </p>
         </header>
 
-        {/* Steps */}
-        <section className="space-y-4 mb-8">
-          {STEPS.map((step) => (
-            <Link href={step.href} key={step.number} className="group block no-underline">
-              <div
-                className="relative flex items-start gap-5 p-5 rounded-2xl border transition-all duration-200"
-                style={{
-                  background: step.highlight ? "rgba(5,150,105,0.04)" : "var(--bg-panel)",
-                  borderColor: step.highlight ? "rgba(5,150,105,0.30)" : "var(--border-subtle)",
-                  boxShadow: "var(--shadow-sm)",
-                }}
-              >
-                {/* Step number + icon */}
-                <div
-                  className="w-12 h-12 rounded-xl shrink-0 flex items-center justify-center font-bold text-lg transition-all duration-200 group-hover:scale-105"
-                  style={{
-                    background: step.highlight ? "var(--brand-primary)" : "var(--bg-raised)",
-                    color: step.highlight ? "#ffffff" : "var(--text-muted)",
-                    border: step.highlight ? "none" : "1px solid var(--border-default)",
-                  }}
-                >
-                  <span style={{ color: step.highlight ? "white" : "var(--brand-primary)" }}>
-                    {step.icon}
-                  </span>
-                </div>
-
-                {/* Text */}
-                <div className="flex-1 min-w-0 pt-0.5">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span
-                      className="text-[10px] font-bold uppercase tracking-widest"
-                      style={{ color: "var(--text-dimmed)" }}
-                    >
-                      Step {step.number}
-                    </span>
-                  </div>
-                  <h3
-                    className="text-[15px] font-semibold leading-snug mb-1"
-                    style={{ color: "var(--text-primary)" }}
-                  >
-                    {step.title}
-                  </h3>
-                  <p
-                    className="text-[13px] leading-relaxed"
-                    style={{ color: "var(--text-muted)" }}
-                  >
-                    {step.description}
-                  </p>
-                </div>
-
-                {/* Arrow */}
-                <div
-                  className="shrink-0 self-center rounded-lg w-8 h-8 flex items-center justify-center transition-all duration-200 group-hover:translate-x-0.5"
-                  style={{
-                    background: "var(--bg-raised)",
-                    color: "var(--text-dimmed)",
-                    border: "1px solid var(--border-subtle)",
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </section>
-
-        {/* CTA */}
-        <div className="text-center">
-          <Link
-            href="/dashboard/admin/keys"
-            id="welcome-get-started-btn"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-base text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 w-full sm:w-auto"
-            style={{
-              background: "linear-gradient(135deg, var(--brand-primary) 0%, #047857 100%)",
-              boxShadow: "0 4px 20px rgba(5,150,105,0.30)",
-            }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="5 3 19 12 5 21 5 3"/>
-            </svg>
-            Get Started Now
-          </Link>
-
-          <p className="text-xs mt-4" style={{ color: "var(--text-dimmed)" }}>
-            Already set up?{" "}
-            <Link
-              href="/dashboard"
-              id="welcome-go-dashboard-link"
-              className="font-semibold underline underline-offset-2 transition-colors"
+        {/* ── Progress Bar ───────────────────────────────────────── */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            <span
+              className="text-xs font-semibold"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {completedSteps.size} of {STEPS.length} steps complete
+            </span>
+            <span
+              className="text-xs font-bold"
               style={{ color: "var(--brand-primary)" }}
             >
-              Go to Dashboard
-            </Link>
-          </p>
+              {progress}%
+            </span>
+          </div>
+          <div
+            className="w-full h-1.5 rounded-full overflow-hidden"
+            style={{ background: "var(--bg-raised)" }}
+          >
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${progress}%`,
+                background:
+                  "linear-gradient(90deg, var(--brand-primary), #047857)",
+              }}
+            />
+          </div>
         </div>
 
+        {/* ── Steps ──────────────────────────────────────────────── */}
+        <section className="space-y-3 mb-8">
+          {STEPS.map((step, idx) => {
+            const done = completedSteps.has(step.id);
+            const isActive = idx === activeStep;
+
+            return (
+              <div
+                key={step.id}
+                className="rounded-2xl border transition-all duration-200"
+                style={{
+                  background: isActive
+                    ? "rgba(5,150,105,0.04)"
+                    : "var(--bg-panel)",
+                  borderColor: isActive
+                    ? "rgba(5,150,105,0.28)"
+                    : done
+                    ? "rgba(5,150,105,0.12)"
+                    : "var(--border-subtle)",
+                }}
+              >
+                {/* Step header — always visible */}
+                <button
+                  className="w-full flex items-center gap-4 p-5 text-left"
+                  onClick={() => setActiveStep(isActive ? -1 : idx)}
+                >
+                  {/* Number / Check icon */}
+                  <div
+                    className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center transition-all"
+                    style={{
+                      background: done
+                        ? "rgba(5,150,105,0.15)"
+                        : isActive
+                        ? "var(--brand-primary)"
+                        : "var(--bg-raised)",
+                      border: done
+                        ? "1px solid rgba(5,150,105,0.25)"
+                        : "none",
+                      color: done
+                        ? "#10b981"
+                        : isActive
+                        ? "#ffffff"
+                        : "var(--text-dimmed)",
+                    }}
+                  >
+                    {done ? (
+                      <CheckCircle2 className="w-5 h-5" />
+                    ) : (
+                      step.icon
+                    )}
+                  </div>
+
+                  {/* Title */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="text-[10px] font-bold uppercase tracking-widest"
+                        style={{ color: "var(--text-dimmed)" }}
+                      >
+                        Step {step.number}
+                      </span>
+                      {done && (
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">
+                          · Complete
+                        </span>
+                      )}
+                    </div>
+                    <p
+                      className="text-[15px] font-semibold leading-snug mt-0.5"
+                      style={{
+                        color: done
+                          ? "var(--text-muted)"
+                          : "var(--text-primary)",
+                        textDecoration: done ? "line-through" : "none",
+                        opacity: done ? 0.6 : 1,
+                      }}
+                    >
+                      {step.title}
+                    </p>
+                  </div>
+
+                  {/* Expand arrow */}
+                  <span
+                    className={`text-lg transition-transform duration-200 ${
+                      isActive ? "rotate-90" : ""
+                    }`}
+                    style={{ color: "var(--text-dimmed)" }}
+                  >
+                    ›
+                  </span>
+                </button>
+
+                {/* Expanded content */}
+                {isActive && (
+                  <div className="px-5 pb-5 pt-0">
+                    <p
+                      className="text-sm leading-relaxed mb-5"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {step.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-3">
+                      {/* Primary CTA */}
+                      <a
+                        href={step.primaryHref}
+                        target={
+                          step.primaryHref.startsWith("http")
+                            ? "_blank"
+                            : "_self"
+                        }
+                        rel="noopener noreferrer"
+                        onClick={() =>
+                          markDone(step.id, step.completionKey)
+                        }
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm text-white transition-all hover:opacity-90 active:scale-[0.98]"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, var(--brand-primary), #047857)",
+                          boxShadow: "0 2px 12px rgba(5,150,105,0.25)",
+                        }}
+                      >
+                        {step.primaryAction}
+                        <ArrowRight className="w-4 h-4" />
+                      </a>
+
+                      {/* Secondary CTA */}
+                      {step.secondaryHref ? (
+                        <Link
+                          href={step.secondaryHref}
+                          className="inline-flex items-center px-5 py-2.5 rounded-xl font-medium text-sm transition-all hover:opacity-80"
+                          style={{
+                            color: "var(--text-muted)",
+                            border: "1px solid var(--border-subtle)",
+                          }}
+                        >
+                          {step.secondaryAction}
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() =>
+                            markDone(step.id, step.completionKey)
+                          }
+                          className="inline-flex items-center px-5 py-2.5 rounded-xl font-medium text-sm transition-all hover:opacity-80"
+                          style={{
+                            color: "var(--text-muted)",
+                            border: "1px solid var(--border-subtle)",
+                          }}
+                        >
+                          {step.secondaryAction}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </section>
+
+        {/* ── Final CTA ──────────────────────────────────────────── */}
+        <div className="text-center space-y-4">
+          {allDone ? (
+            <button
+              onClick={handleFinish}
+              id="welcome-go-dashboard-btn"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-bold text-base text-white transition-all hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
+              style={{
+                background:
+                  "linear-gradient(135deg, var(--brand-primary) 0%, #047857 100%)",
+                boxShadow: "0 4px 20px rgba(5,150,105,0.30)",
+              }}
+            >
+              Go to Dashboard →
+            </button>
+          ) : (
+            <Link
+              href="/dashboard"
+              id="welcome-skip-link"
+              onClick={() => {
+                localStorage.setItem("onboarding_completed", "true");
+                localStorage.setItem("v100-walkthrough-done", "true");
+              }}
+              className="text-sm font-medium transition-colors"
+              style={{ color: "var(--text-dimmed)" }}
+            >
+              Skip setup and go to dashboard →
+            </Link>
+          )}
+        </div>
+
+        {/* ── Trust bar ──────────────────────────────────────────── */}
+        <div className="mt-12 pt-8 flex flex-wrap items-center justify-center gap-4"
+          style={{ borderTop: "1px solid var(--border-subtle)" }}>
+          {TRUST_ITEMS.map((item) => (
+            <div
+              key={item}
+              className="flex items-center gap-1.5 text-xs font-medium"
+              style={{ color: "var(--text-dimmed)" }}
+            >
+              <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+              {item}
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   );

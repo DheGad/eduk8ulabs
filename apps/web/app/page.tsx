@@ -1314,6 +1314,149 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ══════════════════════════════════════════════════════════
+          HOW IT WORKS — 3-step section
+      ══════════════════════════════════════════════════════════ */}
+      <section id="how-it-works" className="px-6 py-24 bg-[#060609]">
+        <div className="mx-auto max-w-5xl">
+          <div className="text-center mb-16">
+            <span className="inline-flex items-center gap-2 px-3 py-1.5 mb-4 rounded-full text-xs font-semibold border border-emerald-500/20 bg-emerald-500/[0.06] text-emerald-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Quick Setup
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-4">
+              Get Protected in 5 Minutes
+            </h2>
+            <p className="text-zinc-400 text-base max-w-xl mx-auto">
+              No IT ticket. No VPN changes. No new infrastructure.
+              StreetMP plugs into your existing workflows in three steps.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+            {/* Connector line */}
+            <div className="hidden md:block absolute top-8 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
+
+            {[
+              {
+                step: "01",
+                icon: "🔧",
+                title: "Install the Extension",
+                desc: "Your employees add the StreetMP extension to Chrome or Edge. Takes 60 seconds. Works on any OS.",
+                note: "Chrome · Edge · Brave · Arc",
+              },
+              {
+                step: "02",
+                icon: "🛡️",
+                title: "Define Your AI Policy",
+                desc: "Set rules once: block PII, restrict certain AI tools, or require approval for sensitive prompts.",
+                note: "No code. One click to enable.",
+              },
+              {
+                step: "03",
+                icon: "✅",
+                title: "AI Works — Risks Don't",
+                desc: "Your team uses AI normally. StreetMP silently filters data before it leaves the browser.",
+                note: "Real-time. Automatic. Silent.",
+              },
+            ].map((item) => (
+              <div
+                key={item.step}
+                className="relative flex flex-col gap-4 p-6 rounded-2xl border border-white/[0.05] bg-white/[0.02] hover:border-emerald-500/20 transition-all duration-300"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl">{item.icon}</span>
+                  <span className="text-xs font-black font-mono text-zinc-700">
+                    {item.step}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-zinc-400 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+                <span className="text-[11px] font-semibold text-emerald-500/70 mt-auto">
+                  {item.note}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════════════════
+          CHROME EXTENSION CTA
+      ══════════════════════════════════════════════════════════ */}
+      <section id="extension" className="px-6 py-20 bg-[#040407]">
+        <div className="mx-auto max-w-5xl">
+          <div className="relative overflow-hidden rounded-3xl border border-emerald-500/[0.15] bg-gradient-to-br from-emerald-500/[0.04] to-transparent p-10 md:p-16 text-center">
+            {/* Glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[200px] rounded-full pointer-events-none blur-3xl"
+              style={{ background: "radial-gradient(ellipse, rgba(5,150,105,0.08) 0%, transparent 70%)" }} />
+
+            <div className="relative z-10">
+              {/* Chrome icon */}
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl border border-white/10 bg-white/[0.03] mb-6 mx-auto">
+                <svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="24" cy="24" r="12" fill="#10b981" fillOpacity="0.2" stroke="#10b981" strokeWidth="1.5"/>
+                  <circle cx="24" cy="24" r="5" fill="#10b981"/>
+                  <path d="M24 12 h12 a12 12 0 0 1 0 24" stroke="#10b981" strokeWidth="1.5" fill="none" opacity="0.5"/>
+                  <path d="M24 12 h-12 a12 12 0 0 0 6 20.78" stroke="#10b981" strokeWidth="1.5" fill="none" opacity="0.5"/>
+                  <path d="M36 36 a12 12 0 0 1-18 0" stroke="#10b981" strokeWidth="1.5" fill="none" opacity="0.5"/>
+                </svg>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
+                Start Free — Install the Extension
+              </h2>
+              <p className="text-zinc-400 text-base max-w-xl mx-auto mb-8">
+                Works on Chrome, Edge, Brave, and Arc. No credit card.
+                No IT ticket. Full enterprise protection in 60 seconds.
+              </p>
+
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="https://chrome.google.com/webstore/detail/streetmp-os"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  id="landing-extension-cta"
+                  className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-emerald-500 px-7 py-4 text-sm font-bold text-black transition-all hover:bg-emerald-400 hover:shadow-[0_0_24px_rgba(16,185,129,0.45)] hover:-translate-y-0.5"
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2z"/>
+                    <path d="M7 7h.01"/>
+                  </svg>
+                  Add to Chrome — Free
+                </a>
+                <Link
+                  href="/docs/mdm-deployment"
+                  id="landing-mdm-cta"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-7 py-4 text-sm font-bold text-zinc-200 hover:bg-white/[0.06] transition-all"
+                >
+                  Enterprise MDM Deployment →
+                </Link>
+              </div>
+
+              {/* Browser compat */}
+              <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
+                {["Chrome ✓", "Edge ✓", "Brave ✓", "Arc ✓", "Firefox (soon)"].map((b) => (
+                  <span
+                    key={b}
+                    className="text-xs font-semibold px-3 py-1 rounded-full border border-white/[0.06] text-zinc-500"
+                  >
+                    {b}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Research Intelligence Signal (Track I) ──────────────── */}
       <div className="border-t border-white/[0.04] bg-[#050508] px-6 py-10">
         <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6">
