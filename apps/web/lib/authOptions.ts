@@ -66,10 +66,16 @@ interface UserLookupRow {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const authOptions: NextAuthOptions = {
+  // ── Session strategy ──────────────────────────────────────────────────────
+  // JWT strategy: no DB session table needed. Token signed with NEXTAUTH_SECRET.
+  // maxAge 30 days gives persistent login across browser restarts.
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+
+  // ── Custom pages ─────────────────────────────────────────────────────────
+  // Both signIn and error redirect to /login so users always see the branded UI.
   pages: {
     signIn: "/login",
     error:  "/login",

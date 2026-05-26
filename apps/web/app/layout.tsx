@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "../components/ThemeProvider";
+import { AuthSessionProvider } from "../components/AuthSessionProvider";
 
 export const metadata: Metadata = {
   title: "StreetMP OS | The Universal Meta-OS & Secure AI Proxy",
@@ -49,18 +50,20 @@ export default function RootLayout({
         )}
       </head>
       <body className="antialiased text-zinc-900 dark:text-white bg-white dark:bg-[#0A0A0A] transition-colors duration-300">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          {children}
-          {process.env.NEXT_PUBLIC_CHAT_ID && (
-            <Script
-              id="crisp-chat"
-              strategy="lazyOnload"
-              dangerouslySetInnerHTML={{
-                __html: `window.$crisp=[];window.CRISP_WEBSITE_ID="${process.env.NEXT_PUBLIC_CHAT_ID}";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();`
-              }}
-            />
-          )}
-        </ThemeProvider>
+        <AuthSessionProvider>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+            {children}
+            {process.env.NEXT_PUBLIC_CHAT_ID && (
+              <Script
+                id="crisp-chat"
+                strategy="lazyOnload"
+                dangerouslySetInnerHTML={{
+                  __html: `window.$crisp=[];window.CRISP_WEBSITE_ID="${process.env.NEXT_PUBLIC_CHAT_ID}";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();`
+                }}
+              />
+            )}
+          </ThemeProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );
