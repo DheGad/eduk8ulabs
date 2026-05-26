@@ -289,7 +289,7 @@ export function piiSafeRequestLogger(
     write(level, `${req.method} ${safePath}`, {
       status:    res.statusCode,
       duration:  `${duration}ms`,
-      trace_id:  (req as Record<string, unknown>).traceId as string | undefined,
+      trace_id:  (req as any).traceId as string | undefined,
     });
   });
 

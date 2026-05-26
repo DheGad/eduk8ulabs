@@ -45,7 +45,7 @@ export interface SandboxContext {
   /** Read query — enforces read-only session; throws if write is attempted */
   query: PoolClient["query"];
   /** Only this fn may write. Validates sentinelId before allowing write access */
-  writeThrough: <T>(sql: string, values?: unknown[]) => Promise<T[]>;
+  writeThrough: <T extends import("pg").QueryResultRow = any>(sql: string, values?: unknown[]) => Promise<T[]>;
 }
 
 export type AgentFn = (ctx: SandboxContext) => Promise<void>;
@@ -87,7 +87,7 @@ export async function runInSandbox(
       query: readClient.query.bind(readClient) as PoolClient["query"],
 
       // Write-through: the ONLY escape hatch from the sandbox
-      writeThrough: async <T>(sql: string, values?: unknown[]): Promise<T[]> => {
+      writeThrough: async <T extends import("pg").QueryResultRow = any>(sql: string, values?: unknown[]): Promise<T[]> => {
         const result = await writePool.query<T>(sql, values);
         return result.rows;
       },
