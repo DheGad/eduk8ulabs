@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 // Imports removed due to missing components
-import { NemoClawHighlight } from "./components/NemoClawHighlight";
-import { CinematicRuntimeTheater } from "./components/CinematicRuntimeTheater";
 import {
   Menu,
   ArrowRight,
@@ -18,7 +16,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// EnterpriseGatewayDemo replaced by CinematicRuntimeTheater (imported above)
 
 // ================================================================
 // STATS TICKER
@@ -223,10 +220,10 @@ export default function HomePage() {
                 Start Enterprise Pilot
               </Link>
               <Link
-                href="/dashboard/admin/mission-control"
+                href="/onboard"
                 className="inline-flex items-center justify-center rounded-2xl border border-emerald-500/30 bg-emerald-500/5 px-8 py-4 text-base font-bold text-emerald-400 transition-all hover:bg-emerald-500/10"
               >
-                Launch Live Demo
+                Start Free Trial
               </Link>
             </div>
 
@@ -248,7 +245,6 @@ export default function HomePage() {
 
           {/* Right column: Cinematic Runtime Theater */}
           <div id="demo" className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <CinematicRuntimeTheater />
           </div>
         </div>
       </section>
@@ -302,17 +298,24 @@ export default function HomePage() {
 
             {/* Right: CTA + browser strip */}
             <div className="flex flex-col items-center lg:items-end gap-5 shrink-0">
-              <Link
-                href="/register"
+              <a
+                href="https://chromewebstore.google.com/detail/streetmp-ai-privacy-shield"
                 id="extension-install-cta"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group relative overflow-hidden inline-flex items-center gap-3 rounded-2xl bg-emerald-500 px-8 py-4 text-base font-bold text-black hover:bg-emerald-400 transition-all shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:shadow-[0_0_50px_rgba(16,185,129,0.55)] hover:scale-[1.02]"
               >
-                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-black" aria-hidden="true">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+                {/* Chrome browser icon */}
+                <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="4"/>
+                  <line x1="21.17" y1="8" x2="12" y2="8"/>
+                  <line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
+                  <line x1="10.88" y1="21.94" x2="15.46" y2="14"/>
                 </svg>
-                Install Chrome Extension
+                Add to Chrome — Free
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </a>
 
               {/* Browser compatibility strip */}
               <div className="flex items-center gap-4">
@@ -482,7 +485,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <NemoClawHighlight />
 
       {/* ── Why The World Needs This ────────────────────────────── */}
       <section id="why-it-matters" className="relative py-20 lg:py-32 px-6 bg-[#080808]">
