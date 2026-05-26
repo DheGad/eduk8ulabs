@@ -133,7 +133,7 @@ export function CinematicRuntimeTheater() {
   const currentScenarioColor = OUTCOME_COLORS[scenario.color as keyof typeof OUTCOME_COLORS];
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-[900px] min-h-[600px] md:min-h-[680px] flex flex-col justify-between rounded-3xl border border-white/10 bg-[#06070a]/90 backdrop-blur-3xl shadow-[0_0_80px_rgba(0,0,0,0.6)] overflow-hidden" style={{ willChange: "transform" }}>
+    <div ref={containerRef} className="relative w-full max-w-[900px] min-h-[600px] md:min-h-[680px] flex flex-col justify-between rounded-3xl border border-white/10 bg-[#06070a]/90 backdrop-blur-3xl shadow-[0_0_80px_rgba(0,0,0,0.6)] overflow-hidden">
       
       {/* Top Metrics Rail */}
       <div className="flex flex-wrap items-center justify-between px-6 md:px-8 py-4 border-b border-white/[0.06] bg-white/[0.02] relative z-20">

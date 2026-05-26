@@ -11,6 +11,19 @@ const nextConfig = {
   output: "standalone",
   generateBuildId: async () => "streetmp-v1",
 
+  async redirects() {
+    return [
+      // ── Demo routes ─────────────────────────────────────────────────
+      { source: "/demo/mission-control", destination: "/demo/runtime-replay", permanent: false },
+      { source: "/demo",                 destination: "/demo/runtime-replay", permanent: false },
+      // ── Public pages that are stubs → best available destination ────
+      { source: "/trust",        destination: "/stp",          permanent: false },
+      { source: "/integrations", destination: "/developers",   permanent: false },
+      { source: "/research",     destination: "/developers",   permanent: false },
+      { source: "/security",     destination: "/stp",          permanent: false },
+    ];
+  },
+
   async headers() {
     return [
       {

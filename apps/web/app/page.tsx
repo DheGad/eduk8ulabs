@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   BarChart3,
   X,
+  Chrome,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -240,7 +241,7 @@ export default function HomePage() {
                   <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div> Healthcare
                 </span>
                 <span className="rounded-lg bg-white/[0.03] border border-white/10 px-3 py-1.5 text-xs font-semibold text-zinc-300 items-center flex gap-2">
-                   <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div> Finance & Banking
+                   <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div> Finance &amp; Banking
                 </span>
                 <span className="rounded-lg bg-white/[0.03] border border-white/10 px-3 py-1.5 text-xs font-semibold text-zinc-300 items-center flex gap-2">
                   <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div> Enterprise SaaS
@@ -250,7 +251,7 @@ export default function HomePage() {
           </div>
 
           {/* Right column: Cinematic Runtime Theater */}
-          <div id="live-replay" className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+          <div id="demo" className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
             <CinematicRuntimeTheater />
           </div>
         </div>
@@ -342,86 +343,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <section id="architecture">
-        <NemoClawHighlight />
-      </section>
-
-      {/* ── Phase 3: Chrome Extension Activation Section ─────────── */}
-      <section id="extension" className="relative py-20 lg:py-28 px-6 bg-[#050508] border-t border-white/[0.04] overflow-hidden">
-        {/* Background glow */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-emerald-500/[0.04] blur-[100px] rounded-full" />
-        </div>
-
-        <div className="mx-auto max-w-7xl relative z-10">
-          <div className="text-center mb-12">
-            <p className="text-[11px] font-mono uppercase tracking-[0.3em] text-emerald-500 mb-4">One-Click Setup</p>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-4">
-              Install. Protect. Done.
-            </h2>
-            <p className="text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-              No configuration. No IT ticket. No workflow changes.<br />
-              Install the extension and your team is protected instantly.
-            </p>
-          </div>
-
-          {/* Compatibility grid */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
-            {[
-              { name: "ChatGPT", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/25" },
-              { name: "Claude",  color: "text-violet-400",  bg: "bg-violet-500/10 border-violet-500/25"  },
-              { name: "Gemini",  color: "text-blue-400",    bg: "bg-blue-500/10 border-blue-500/25"      },
-              { name: "Slack AI",color: "text-amber-400",   bg: "bg-amber-500/10 border-amber-500/25"    },
-              { name: "Copilot", color: "text-sky-400",     bg: "bg-sky-500/10 border-sky-500/25"        },
-              { name: "Docs AI", color: "text-zinc-300",    bg: "bg-white/[0.04] border-white/10"        },
-            ].map((tool) => (
-              <span key={tool.name} className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold ${tool.bg} ${tool.color}`}>
-                <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                {tool.name}
-              </span>
-            ))}
-          </div>
-
-          {/* Steps */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
-            {[
-              { step: "01", title: "Install Extension", desc: "Click install — it takes 8 seconds. No account needed to start.", icon: "🔌" },
-              { step: "02", title: "Open Any AI Tool", desc: "Open ChatGPT, Claude, Gemini, or any tool your team uses.", icon: "🌐" },
-              { step: "03", title: "You're Protected", desc: "StreetMP silently monitors and blocks data leaks. Audit logs appear in your dashboard.", icon: "🛡️" },
-            ].map((s) => (
-              <div key={s.step} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 text-center hover:border-emerald-500/30 hover:bg-emerald-500/[0.03] transition-all group">
-                <div className="text-3xl mb-3">{s.icon}</div>
-                <p className="text-[10px] font-mono text-emerald-500 tracking-widest mb-2">Step {s.step}</p>
-                <h3 className="text-base font-bold text-white mb-2">{s.title}</h3>
-                <p className="text-sm text-zinc-500 leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="https://chrome.google.com/webstore"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 rounded-2xl bg-emerald-500 px-8 py-4 text-base font-bold text-black transition-all hover:bg-emerald-400 hover:scale-[1.02] shadow-[0_0_30px_rgba(16,185,129,0.35)]"
-            >
-              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
-              Install Chrome Extension — Free
-            </a>
-            <Link
-              href="/dashboard/welcome"
-              className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/[0.03] px-8 py-4 text-base font-bold text-zinc-300 transition-all hover:bg-white/[0.06] hover:text-white"
-            >
-              View Enterprise Dashboard
-            </Link>
-          </div>
-
-          <p className="text-center text-xs text-zinc-600 mt-6">
-            Free for up to 5 users · No credit card · SOC2 compliant · Chrome Enterprise compatible
-          </p>
-        </div>
-      </section>
+      <NemoClawHighlight />
 
       {/* ── Why The World Needs This ────────────────────────────── */}
       <section id="why-it-matters" className="relative py-20 lg:py-32 px-6 bg-[#080808]">
@@ -748,7 +670,7 @@ export default function HomePage() {
       </div>
 
       {/* ── What's Actually Built ──────────────────────────────── */}
-      <section className="relative py-20 lg:py-32 px-6 bg-[#080808]">
+      <section id="research" className="relative py-20 lg:py-32 px-6 bg-[#080808]">
         <div className="mx-auto max-w-7xl">
           <div className="mb-16 text-center">
             <p className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 mb-4">Production Systems</p>
@@ -925,9 +847,229 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Chrome Extension Deployment Section ───────────────── */}
+      {/* ADDITIVE: Native to the cinematic ecosystem. Same visual grammar. */}
+      <section id="live-replay" className="relative py-20 lg:py-32 px-6 border-t border-white/[0.04] bg-[#070707] overflow-hidden">
+        {/* Ambient glow — violet for extension/browser context */}
+        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[600px] h-[600px] bg-violet-600/[0.06] blur-[140px] rounded-full pointer-events-none" />
+
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            {/* Left: Operational panel */}
+            <div>
+              <div className="flex items-center gap-2 mb-6">
+                <span className="rounded-full bg-violet-500/10 border border-violet-500/30 px-3 py-1 text-[11px] font-mono text-violet-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse"></span>
+                  Browser Extension
+                </span>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white leading-tight mb-6">
+                Deploy the Shield<br />
+                <span className="text-violet-400">Directly in the Browser.</span>
+              </h2>
+              <p className="text-lg text-zinc-400 leading-relaxed mb-8">
+                The StreetMP OS extension intercepts AI traffic at the browser layer — before data ever reaches the network. No proxy configuration. No employee training. Activate in 30 seconds.
+              </p>
+
+              <div className="flex flex-col gap-4 mb-8">
+                {[
+                  { step: "01", label: "Install from Chrome Web Store", desc: "One-click deployment. Zero configuration required." },
+                  { step: "02", label: "Pair with your Org dashboard", desc: "Extension auto-detects your tenant via secure token exchange." },
+                  { step: "03", label: "Governance activates instantly", desc: "All AI surfaces — ChatGPT, Claude, Gemini — immediately protected." },
+                ].map(item => (
+                  <div key={item.step} className="flex items-start gap-4 p-4 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-violet-500/20 hover:bg-white/[0.04] transition-all">
+                    <div className="text-[10px] font-black font-mono text-zinc-600 tracking-widest mt-1 w-8 shrink-0">
+                      {item.step}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-zinc-200 mb-0.5">{item.label}</p>
+                      <p className="text-xs text-zinc-500">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  href="/extension/install"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-violet-600 px-8 py-4 text-base font-bold text-white transition-all hover:bg-violet-500 hover:scale-[1.02] shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+                >
+                  <Chrome className="w-5 h-5" />
+                  Install Extension
+                </Link>
+                <Link
+                  href="/extension/first-run"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-violet-500/30 bg-violet-500/5 px-8 py-4 text-base font-bold text-violet-400 transition-all hover:bg-violet-500/10"
+                >
+                  View Setup Guide →
+                </Link>
+              </div>
+            </div>
+
+            {/* Right: Terminal-style activation panel */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-violet-500/[0.04] blur-[80px] rounded-full" />
+              <div className="relative rounded-3xl border border-white/[0.08] bg-zinc-950/80 overflow-hidden shadow-2xl">
+                {/* Terminal header */}
+                <div className="flex items-center gap-2 px-5 py-3 border-b border-white/[0.06] bg-white/[0.01]">
+                  <div className="flex gap-1.5">
+                    <div className="w-3 h-3 rounded-full bg-red-500/60" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
+                    <div className="w-3 h-3 rounded-full bg-emerald-500/60" />
+                  </div>
+                  <span className="text-[10px] font-mono text-zinc-600 ml-2 uppercase tracking-widest">extension://streetmp-os — activation log</span>
+                </div>
+                {/* Terminal body */}
+                <div className="p-6 font-mono text-xs leading-relaxed space-y-2">
+                  <p className="text-zinc-600"># StreetMP OS Extension v2.4.1</p>
+                  <p className="text-zinc-500">$ installing governance layer...</p>
+                  <p className="text-emerald-400">✓ Extension loaded (manifest v3)</p>
+                  <p className="text-zinc-500">$ authenticating tenant...</p>
+                  <p className="text-emerald-400">✓ Org paired — tenant: ACME Corp</p>
+                  <p className="text-zinc-500">$ activating NeMo CLAW intercept...</p>
+                  <p className="text-emerald-400">✓ ChatGPT: protected</p>
+                  <p className="text-emerald-400">✓ Claude: protected</p>
+                  <p className="text-emerald-400">✓ Gemini: protected</p>
+                  <p className="text-zinc-500">$ enabling audit telemetry...</p>
+                  <p className="text-emerald-400">✓ HMAC signing: active</p>
+                  <p className="text-emerald-400">✓ Zero-retention mode: enforced</p>
+                  <div className="mt-3 pt-3 border-t border-white/[0.04] flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-emerald-400">Sovereign shield: ONLINE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing Section ───────────────────────────────────── */}
+      {/* ADDITIVE: Cinematic pricing grid. Same visual grammar. */}
+      <section id="pricing" className="relative py-20 lg:py-32 px-6 border-t border-white/[0.04] bg-[#080808] overflow-hidden">
+        {/* Ambient glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-[300px] bg-emerald-600/[0.06] blur-[120px] rounded-full pointer-events-none" />
+
+        <div className="relative z-10 mx-auto max-w-7xl">
+          <div className="text-center mb-16">
+            <p className="text-[11px] font-mono uppercase tracking-widest text-emerald-400 mb-4">Deployment Tiers</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-4">
+              Sovereign Infrastructure.<br />
+              <span className="text-emerald-400">At Every Scale.</span>
+            </h2>
+            <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
+              From solo security engineers to regulated enterprise deployments. All tiers include cryptographic audit chain and zero-retention enforcement.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+            {[
+              {
+                name: "Pilot",
+                price: "Free",
+                period: "14 days",
+                desc: "Full platform access. No credit card required. Evaluate every system under real load.",
+                badge: null,
+                color: "border-white/[0.08]",
+                ctaHref: "/register",
+                ctaLabel: "Start Free Pilot",
+                ctaClass: "border border-white/[0.15] bg-white/[0.03] text-white hover:bg-white/[0.08]",
+                features: [
+                  "Up to 3 users",
+                  "10,000 scans / day",
+                  "NeMo CLAW pipeline",
+                  "Full audit log access",
+                  "SOC2 evidence export",
+                  "Extension deployment",
+                ],
+              },
+              {
+                name: "Enterprise",
+                price: "Contact Sales",
+                period: "custom contract",
+                desc: "Unlimited users. Dedicated infrastructure. BYOK/HYOK. White-glove onboarding.",
+                badge: "Most Popular",
+                color: "border-emerald-500/40 ring-1 ring-emerald-500/20",
+                ctaHref: "/register",
+                ctaLabel: "Start Enterprise Pilot →",
+                ctaClass: "bg-emerald-500 text-black font-bold hover:bg-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.3)]",
+                features: [
+                  "Unlimited users & scans",
+                  "Dedicated sovereign enclave",
+                  "BYOK / HYOK encryption",
+                  "APAC jurisdiction routing",
+                  "24/7 enterprise support",
+                  "Custom policy engine",
+                ],
+              },
+              {
+                name: "Research",
+                price: "$299",
+                period: "/ month",
+                desc: "For AI security researchers, red teams, and academic institutions studying AI governance.",
+                badge: null,
+                color: "border-white/[0.08]",
+                ctaHref: "/register",
+                ctaLabel: "Apply for Access",
+                ctaClass: "border border-white/[0.15] bg-white/[0.03] text-white hover:bg-white/[0.08]",
+                features: [
+                  "Up to 10 researchers",
+                  "API-first access",
+                  "Red team tooling",
+                  "Threat model exports",
+                  "Academic data sharing",
+                  "Priority support",
+                ],
+              },
+            ].map(tier => (
+              <div
+                key={tier.name}
+                className={`relative rounded-3xl border ${tier.color} bg-zinc-950/60 backdrop-blur-xl p-8 flex flex-col gap-6 transition-all duration-300 hover:scale-[1.01]`}
+                style={tier.badge ? { boxShadow: "0 0 60px rgba(16,185,129,0.08)" } : undefined}
+              >
+                {tier.badge && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <span className="rounded-full bg-emerald-500 px-4 py-1 text-xs font-bold text-black tracking-wide">
+                      {tier.badge}
+                    </span>
+                  </div>
+                )}
+                <div>
+                  <p className="text-[11px] font-mono uppercase tracking-widest text-zinc-500 mb-2">{tier.name}</p>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-black text-white tracking-tighter">{tier.price}</span>
+                    <span className="text-zinc-500 text-sm">{tier.period}</span>
+                  </div>
+                  <p className="text-sm text-zinc-400 leading-relaxed mt-3">{tier.desc}</p>
+                </div>
+
+                <ul className="flex flex-col gap-2.5 flex-1">
+                  {tier.features.map(f => (
+                    <li key={f} className="flex items-center gap-2.5">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                      <span className="text-xs text-zinc-300">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href={tier.ctaHref}
+                  className={`w-full text-center rounded-2xl px-6 py-3.5 text-sm transition-all ${tier.ctaClass}`}
+                >
+                  {tier.ctaLabel}
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center text-xs text-zinc-600 mt-10">
+            All plans include: cryptographic audit chain · zero-retention enforcement · SOC2 compliance export · HMAC-signed telemetry
+          </p>
+        </div>
+      </section>
 
       {/* ── Research Intelligence Signal (Track I) ──────────────── */}
-      <div id="research" className="border-t border-white/[0.04] bg-[#050508] px-6 py-10">
+      <div className="border-t border-white/[0.04] bg-[#050508] px-6 py-10">
         <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -957,206 +1099,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── [NEW] Social Proof / Testimonials ─────────────────────────────────
-          Added: 3 early-pilot quotes before the pricing section.
-          Labeled "Early Pilot Feedback" — honest, avoids fake enterprise logos.
-          Pattern: reduces purchase anxiety immediately before pricing. ─── */}
-      <section className="relative py-16 px-6 border-t border-white/[0.04] bg-[#070707]">
-        <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-10">
-            <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">Early Pilot Feedback</p>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
-              What teams say after their first week.
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-5">
-            {[
-              {
-                quote: "We had 8 employees pasting client data into ChatGPT daily without realising. StreetMP flagged and blocked every instance within 48 hours of deployment. We didn't have to change a single workflow.",
-                author: "Head of Risk & Compliance",
-                org:    "Financial Services · 200+ employees",
-                color:  "border-emerald-500/15",
-                glow:   "rgba(16,185,129,0.04)",
-                dot:    "bg-emerald-500",
-              },
-              {
-                quote: "IT took under 10 minutes to push via Google Admin. The audit log export is ready-made for our SOC2 Type II auditors — saved us weeks of manual evidence collection.",
-                author: "VP of Engineering",
-                org:    "SaaS Platform · 120 seats",
-                color:  "border-violet-500/15",
-                glow:   "rgba(139,92,246,0.04)",
-                dot:    "bg-violet-400",
-              },
-              {
-                quote: "Our legal team was worried about PDPA and GDPR exposure from Gemini usage. StreetMP gave them the exact audit reports they needed without us rebuilding any infrastructure.",
-                author: "CISO",
-                org:    "Healthcare Tech · APAC Region",
-                color:  "border-blue-500/15",
-                glow:   "rgba(59,130,246,0.04)",
-                dot:    "bg-blue-400",
-              },
-            ].map((t) => (
-              <div
-                key={t.author}
-                className={`rounded-3xl border ${t.color} bg-zinc-950/60 p-7 flex flex-col gap-5`}
-                style={{ boxShadow: `0 0 60px ${t.glow}` }}
-              >
-                {/* Quote marks */}
-                <div className="text-3xl text-zinc-700 font-serif leading-none select-none">&ldquo;</div>
-                <p className="text-sm text-zinc-300 leading-relaxed flex-1">{t.quote}</p>
-                <div className="flex items-center gap-3 pt-3 border-t border-white/[0.05]">
-                  <div className={`w-8 h-8 rounded-full ${t.dot} flex items-center justify-center`}>
-                    <span className="text-[10px] font-black text-black">{t.author[0]}</span>
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-zinc-200">{t.author}</div>
-                    <div className="text-[10px] text-zinc-600">{t.org}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Pricing Section (#pricing anchor — was MISSING, now added) ── */}
-      <section id="pricing" className="relative py-20 lg:py-32 px-6 border-t border-white/[0.04] bg-[#060606]">
-        <div className="mx-auto max-w-7xl">
-          <div className="text-center mb-16">
-            <p className="text-xs font-bold text-emerald-500 tracking-[0.3em] uppercase mb-4">Simple, Transparent Pricing</p>
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-4">
-              Start free. Scale with confidence.
-            </h2>
-            <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-              No hidden fees. No per-seat surprises. Cancel any time.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 items-start">
-            {/* Trial */}
-            <div className="rounded-3xl border border-white/[0.08] bg-zinc-950/60 p-8 flex flex-col gap-5">
-              <div>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Trial</p>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-black text-white">Free</span>
-                </div>
-                <p className="text-sm text-zinc-500">30 days · No credit card required</p>
-              </div>
-              <ul className="flex flex-col gap-3 text-sm">
-                {[
-                  "Up to 10 seats",
-                  "All 6 AI surfaces protected",
-                  "Chrome Extension deployment",
-                  "Basic compliance reports",
-                  "SOC2-ready audit logs",
-                  "Email support",
-                ].map(f => (
-                  <li key={f} className="flex items-center gap-2.5 text-zinc-400">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/register"
-                className="mt-auto w-full text-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-6 py-3 text-sm font-bold text-emerald-400 hover:bg-emerald-500/20 transition-all"
-              >
-                Start Free Trial →
-              </Link>
-            </div>
-
-            {/* Starter — highlighted */}
-            <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/[0.03] p-8 flex flex-col gap-5 relative shadow-[0_0_60px_rgba(16,185,129,0.08)]">
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="px-4 py-1 rounded-full bg-emerald-500 text-black text-xs font-bold">MOST POPULAR</span>
-              </div>
-              <div>
-                <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2">Starter</p>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-black text-white">$49</span>
-                  <span className="text-zinc-400">/mo</span>
-                </div>
-                <p className="text-sm text-zinc-500">Billed monthly · Cancel any time</p>
-              </div>
-              <ul className="flex flex-col gap-3 text-sm">
-                {[
-                  "Up to 10 seats",
-                  "All 6 AI surfaces protected",
-                  "Chrome Extension + MDM deployment",
-                  "Full compliance reports (SOC2, HIPAA)",
-                  "Real-time telemetry dashboard",
-                  "Policy engine (20 rules)",
-                  "Priority email support",
-                  "Self-serve Stripe billing",
-                ].map(f => (
-                  <li key={f} className="flex items-center gap-2.5 text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/register"
-                className="mt-auto w-full text-center rounded-xl bg-emerald-500 px-6 py-3 text-sm font-bold text-black hover:bg-emerald-400 transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]"
-              >
-                Start Enterprise Pilot →
-              </Link>
-            </div>
-
-            {/* Growth */}
-            <div className="rounded-3xl border border-white/[0.08] bg-zinc-950/60 p-8 flex flex-col gap-5">
-              <div>
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Growth</p>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-4xl font-black text-white">$149</span>
-                  <span className="text-zinc-400">/mo</span>
-                </div>
-                <p className="text-sm text-zinc-500">Billed monthly · Cancel any time</p>
-              </div>
-              <ul className="flex flex-col gap-3 text-sm">
-                {[
-                  "Up to 50 seats",
-                  "All 6 AI surfaces protected",
-                  "MDM fleet deployment (Jamf, Intune, G Admin)",
-                  "SOC2 Type I evidence export",
-                  "Unlimited compliance reports",
-                  "Policy engine (unlimited rules)",
-                  "Custom PII patterns",
-                  "Dedicated onboarding & Slack support",
-                  "Executive value reports",
-                ].map(f => (
-                  <li key={f} className="flex items-center gap-2.5 text-zinc-400">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/register"
-                className="mt-auto w-full text-center rounded-xl border border-white/10 bg-white/[0.03] px-6 py-3 text-sm font-bold text-zinc-200 hover:bg-white/[0.06] transition-all"
-              >
-                Start Free Trial →
-              </Link>
-            </div>
-          </div>
-
-          {/* Enterprise custom */}
-          <div className="mt-8 p-6 rounded-2xl border border-white/[0.05] bg-white/[0.01] flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-            <div>
-              <p className="text-sm font-bold text-zinc-200 mb-1">Need 50+ seats, custom contracts, or on-premise deployment?</p>
-              <p className="text-xs text-zinc-500">We offer custom enterprise agreements with SLAs, DPA, and named CSM support.</p>
-            </div>
-            <a
-              href="mailto:enterprise@streetmp.com"
-              className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-3 text-sm font-bold text-zinc-200 hover:bg-white/[0.06] transition-all whitespace-nowrap"
-            >
-              Contact Enterprise Sales →
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* ── Footer ──────────────────────────────────────────────── */}
 
       <footer className="border-t border-white/[0.04] px-6 py-20 bg-[#080808]">
@@ -1178,7 +1120,7 @@ export default function HomePage() {
             <h4 className="text-white font-semibold mb-2">Platform</h4>
             <Link href="/stp" className="hover:text-emerald-400 transition-colors">STP Protocol</Link>
             <Link href="/integrations" className="hover:text-emerald-400 transition-colors">Integrations</Link>
-            <Link href="/pricing" className="hover:text-emerald-400 transition-colors">Pricing</Link>
+            <Link href="#pricing" className="hover:text-emerald-400 transition-colors">Pricing</Link>
             <Link href="/docs" className="hover:text-emerald-400 transition-colors">Documentation</Link>
           </div>
 

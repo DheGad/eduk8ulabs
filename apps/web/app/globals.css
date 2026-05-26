@@ -582,3 +582,140 @@
   /* Ensure the sidebar area gets proper treatment */
   .dark aside { background: var(--sidebar-bg); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   STREETMP OS · CINEMATIC INFRASTRUCTURE SYSTEM
+   Living AI Intelligence Platform — Atmospheric Layer
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Continuous Telemetry Marquee ─────────────────────────────────────────── */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+.animate-marquee { animation: marquee 20s linear infinite; }
+.animate-marquee-slow { animation: marquee 40s linear infinite; }
+
+/* ── Radar / Sonar Pulse ───────────────────────────────────────────────── */
+@keyframes radar-pulse {
+  0%   { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.animate-radar { animation: radar-pulse 2.5s ease-out infinite; }
+.animate-radar-slow { animation: radar-pulse 4s ease-out infinite; }
+.animate-radar-delay { animation: radar-pulse 2.5s ease-out 1.25s infinite; }
+
+/* ── Grid Scan / Infrastructure Sweep ────────────────────────────────────── */
+@keyframes grid-scan {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.6; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+.animate-grid-scan { animation: grid-scan 8s ease-in-out infinite; }
+.animate-grid-scan-slow { animation: grid-scan 14s ease-in-out 4s infinite; }
+
+/* ── Orbital Glow Drift ──────────────────────────────────────────────────── */
+@keyframes glow-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.12; }
+  25%       { transform: translate(3%, -2%) scale(1.05); opacity: 0.18; }
+  50%       { transform: translate(-2%, 3%) scale(0.96); opacity: 0.10; }
+  75%       { transform: translate(2%, 1%) scale(1.03); opacity: 0.15; }
+}
+.animate-glow-drift { animation: glow-drift 12s ease-in-out infinite; }
+.animate-glow-drift-slow { animation: glow-drift 18s ease-in-out 4s infinite; }
+.animate-glow-drift-reverse { animation: glow-drift 15s ease-in-out 2s infinite reverse; }
+
+/* ── Telemetry Flicker ────────────────────────────────────────────────────── */
+@keyframes telemetry-flicker {
+  0%, 100%  { opacity: 1; }
+  92%       { opacity: 1; }
+  93%       { opacity: 0.3; }
+  94%       { opacity: 1; }
+  97%       { opacity: 1; }
+  98%       { opacity: 0.5; }
+  99%       { opacity: 1; }
+}
+.animate-telemetry { animation: telemetry-flicker 6s ease-in-out infinite; }
+.animate-telemetry-slow { animation: telemetry-flicker 9s ease-in-out 2s infinite; }
+
+/* ── Vertical Data Stream ────────────────────────────────────────────────── */
+@keyframes data-stream {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+.animate-data-stream { animation: data-stream 3s linear infinite; }
+.animate-data-stream-slow { animation: data-stream 5s linear 1.5s infinite; }
+
+/* ── Infrastructure Heartbeat ─────────────────────────────────────────────── */
+@keyframes heartbeat {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.08); }
+}
+.animate-heartbeat { animation: heartbeat 2s ease-in-out infinite; }
+
+/* ── Slide Up Reveal ──────────────────────────────────────────────────────── */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up { animation: slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* ── Shimmer Sweep (hover state for cards) ───────────────────────────────── */
+@keyframes shimmer-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.shimmer-on-hover {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-on-hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(16,185,129,0.06) 50%, transparent 100%);
+  transform: translateX(-100%);
+  transition: none;
+}
+.shimmer-on-hover:hover::after {
+  animation: shimmer-sweep 0.8s ease-in-out;
+}
+
+/* ── Cross-section gradient bleed (section connectors) ───────────────────── */
+.section-bleed-top {
+  background: linear-gradient(to bottom, transparent 0%, rgba(16, 185, 129, 0.03) 40%, transparent 100%);
+  pointer-events: none;
+}
+.section-connector {
+  background: linear-gradient(to bottom,
+    rgba(16, 185, 129, 0.04) 0%,
+    rgba(99, 102, 241, 0.03) 50%,
+    rgba(16, 185, 129, 0.02) 100%
+  );
+}
+
+/* ── Infrastructure mesh background ─────────────────────────────────────── */
+.infra-mesh {
+  background-image:
+    linear-gradient(to right, rgba(128,128,128,0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(128,128,128,0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+.infra-mesh-tight {
+  background-image:
+    linear-gradient(to right, rgba(16,185,129,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(16,185,129,0.05) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* ── Operational status indicator ────────────────────────────────────────── */
+@keyframes status-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+.status-live { animation: status-blink 1.4s ease-in-out infinite; }
+.status-live-slow { animation: status-blink 3s ease-in-out infinite; }
+
