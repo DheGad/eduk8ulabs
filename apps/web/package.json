@@ -14,23 +14,30 @@
     "test:e2e:report": "playwright show-report"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.65",
+    "@ai-sdk/react": "^3.0.193",
     "@auth/pg-adapter": "^1.11.1",
     "@sentry/nextjs": "^10.47.0",
     "@streetmp/sdk": "*",
     "@stripe/react-stripe-js": "^5.6.1",
     "@stripe/stripe-js": "^8.11.0",
     "@types/pg": "^8.20.0",
+    "ai": "^6.0.191",
     "bcrypt": "^6.0.0",
+    "framer-motion": "^12.40.0",
     "lucide-react": "^0.577.0",
     "luxon": "^3.7.2",
+    "mammoth": "^1.12.0",
     "next": "^15.3.0",
     "next-auth": "^4.24.13",
     "next-themes": "^0.4.6",
+    "pdf-parse": "^2.4.5",
     "pg": "^8.20.0",
     "razorpay": "^2.9.6",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "resend": "^6.10.0"
+    "resend": "^6.10.0",
+    "stripe": "^20.4.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.59.0",

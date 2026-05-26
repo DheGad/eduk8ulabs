@@ -8,7 +8,17 @@ import { Chrome, Shield, ArrowRight, Download, CheckCircle2, AlertCircle } from 
 const CWS_URL = process.env.NEXT_PUBLIC_EXTENSION_CWS_URL ||
   "https://chromewebstore.google.com/detail/streetmp-ai-privacy-shield";
 
+import { Suspense } from "react";
+
 export default function InstallExtensionPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white">Loading...</div>}>
+      <InstallExtensionContent />
+    </Suspense>
+  );
+}
+
+function InstallExtensionContent() {
   const searchParams = useSearchParams();
   const tenantId = searchParams.get("tenant") || "";
   const [browser, setBrowser] = useState("Detecting...");
