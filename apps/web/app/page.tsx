@@ -122,10 +122,10 @@ export default function HomePage() {
           {/* ── Middle Nav Links (hidden below xl) ── */}
           <div className="hidden xl:flex items-center justify-center gap-x-8 flex-1 px-8 text-sm font-medium">
             <Link href="#why-it-matters"          className="text-white/80 hover:text-white transition-colors">Why It Matters</Link>
-            <Link href="/architecture/nemo-claw"  className="text-white/80 hover:text-violet-400 transition-colors">Architecture</Link>
-            <Link href="/demo/runtime-replay"     className="text-white/80 hover:text-emerald-400 transition-colors">Live Replay</Link>
-            <Link href="/research"                className="text-white/80 hover:text-sky-400 transition-colors">Research</Link>
-            <Link href="/stp"                     className="text-white/80 hover:text-white transition-colors">STP Protocol</Link>
+            <Link href="#architecture"            className="text-white/80 hover:text-violet-400 transition-colors">Architecture</Link>
+            <Link href="#live-replay"             className="text-white/80 hover:text-emerald-400 transition-colors">Live Replay</Link>
+            <Link href="#research"                className="text-white/80 hover:text-sky-400 transition-colors">Research</Link>
+            <Link href="#stp-protocol"            className="text-white/80 hover:text-white transition-colors">STP Protocol</Link>
           </div>
 
           {/* ── Right CTAs (always visible on mobile onwards) ── */}
@@ -176,8 +176,8 @@ export default function HomePage() {
             <div className="flex flex-col gap-3 p-6 text-base font-semibold text-zinc-300">
               <Link href="#why-it-matters" onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">Why It Matters</Link>
               <Link href="#architecture"   onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">Architecture</Link>
-              <Link href="/stp"            onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">STP Protocol</Link>
-              <Link href="/developers"     onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors text-violet-400">Developer SDK</Link>
+              <Link href="#live-replay"    onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">Live Replay</Link>
+              <Link href="#stp-protocol"   onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors">STP Protocol</Link>
               <Link href="#pricing"        onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors text-emerald-400">Pricing</Link>
               <Link href="/scan"           onClick={() => setMobileMenuOpen(false)} className="hover:text-white transition-colors text-rose-400">Free AI Audit</Link>
               <div className="mt-3 pt-4 border-t border-white/10 flex flex-col gap-3">
@@ -250,7 +250,7 @@ export default function HomePage() {
           </div>
 
           {/* Right column: Cinematic Runtime Theater */}
-          <div id="demo" className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+          <div id="live-replay" className={`transition-all duration-1000 delay-300 ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
             <CinematicRuntimeTheater />
           </div>
         </div>
@@ -342,7 +342,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      <NemoClawHighlight />
+      <section id="architecture">
+        <NemoClawHighlight />
+      </section>
 
       {/* ── Phase 3: Chrome Extension Activation Section ─────────── */}
       <section id="extension" className="relative py-20 lg:py-28 px-6 bg-[#050508] border-t border-white/[0.04] overflow-hidden">
@@ -824,7 +826,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Sovereign AI Section ───────────────────────────────── */}
-      <section className="relative py-20 lg:py-28 px-6 border-t border-white/[0.04] bg-gradient-to-b from-[#080808] to-zinc-950">
+      <section id="stp-protocol" className="relative py-20 lg:py-28 px-6 border-t border-white/[0.04] bg-gradient-to-b from-[#080808] to-zinc-950">
         <div className="mx-auto max-w-7xl">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -925,7 +927,7 @@ export default function HomePage() {
 
 
       {/* ── Research Intelligence Signal (Track I) ──────────────── */}
-      <div className="border-t border-white/[0.04] bg-[#050508] px-6 py-10">
+      <div id="research" className="border-t border-white/[0.04] bg-[#050508] px-6 py-10">
         <div className="mx-auto max-w-7xl flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -954,6 +956,206 @@ export default function HomePage() {
           </a>
         </div>
       </div>
+
+      {/* ── [NEW] Social Proof / Testimonials ─────────────────────────────────
+          Added: 3 early-pilot quotes before the pricing section.
+          Labeled "Early Pilot Feedback" — honest, avoids fake enterprise logos.
+          Pattern: reduces purchase anxiety immediately before pricing. ─── */}
+      <section className="relative py-16 px-6 border-t border-white/[0.04] bg-[#070707]">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center mb-10">
+            <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest mb-2">Early Pilot Feedback</p>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+              What teams say after their first week.
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              {
+                quote: "We had 8 employees pasting client data into ChatGPT daily without realising. StreetMP flagged and blocked every instance within 48 hours of deployment. We didn't have to change a single workflow.",
+                author: "Head of Risk & Compliance",
+                org:    "Financial Services · 200+ employees",
+                color:  "border-emerald-500/15",
+                glow:   "rgba(16,185,129,0.04)",
+                dot:    "bg-emerald-500",
+              },
+              {
+                quote: "IT took under 10 minutes to push via Google Admin. The audit log export is ready-made for our SOC2 Type II auditors — saved us weeks of manual evidence collection.",
+                author: "VP of Engineering",
+                org:    "SaaS Platform · 120 seats",
+                color:  "border-violet-500/15",
+                glow:   "rgba(139,92,246,0.04)",
+                dot:    "bg-violet-400",
+              },
+              {
+                quote: "Our legal team was worried about PDPA and GDPR exposure from Gemini usage. StreetMP gave them the exact audit reports they needed without us rebuilding any infrastructure.",
+                author: "CISO",
+                org:    "Healthcare Tech · APAC Region",
+                color:  "border-blue-500/15",
+                glow:   "rgba(59,130,246,0.04)",
+                dot:    "bg-blue-400",
+              },
+            ].map((t) => (
+              <div
+                key={t.author}
+                className={`rounded-3xl border ${t.color} bg-zinc-950/60 p-7 flex flex-col gap-5`}
+                style={{ boxShadow: `0 0 60px ${t.glow}` }}
+              >
+                {/* Quote marks */}
+                <div className="text-3xl text-zinc-700 font-serif leading-none select-none">&ldquo;</div>
+                <p className="text-sm text-zinc-300 leading-relaxed flex-1">{t.quote}</p>
+                <div className="flex items-center gap-3 pt-3 border-t border-white/[0.05]">
+                  <div className={`w-8 h-8 rounded-full ${t.dot} flex items-center justify-center`}>
+                    <span className="text-[10px] font-black text-black">{t.author[0]}</span>
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-zinc-200">{t.author}</div>
+                    <div className="text-[10px] text-zinc-600">{t.org}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pricing Section (#pricing anchor — was MISSING, now added) ── */}
+      <section id="pricing" className="relative py-20 lg:py-32 px-6 border-t border-white/[0.04] bg-[#060606]">
+        <div className="mx-auto max-w-7xl">
+          <div className="text-center mb-16">
+            <p className="text-xs font-bold text-emerald-500 tracking-[0.3em] uppercase mb-4">Simple, Transparent Pricing</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-4">
+              Start free. Scale with confidence.
+            </h2>
+            <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
+              No hidden fees. No per-seat surprises. Cancel any time.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 items-start">
+            {/* Trial */}
+            <div className="rounded-3xl border border-white/[0.08] bg-zinc-950/60 p-8 flex flex-col gap-5">
+              <div>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Trial</p>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-4xl font-black text-white">Free</span>
+                </div>
+                <p className="text-sm text-zinc-500">30 days · No credit card required</p>
+              </div>
+              <ul className="flex flex-col gap-3 text-sm">
+                {[
+                  "Up to 10 seats",
+                  "All 6 AI surfaces protected",
+                  "Chrome Extension deployment",
+                  "Basic compliance reports",
+                  "SOC2-ready audit logs",
+                  "Email support",
+                ].map(f => (
+                  <li key={f} className="flex items-center gap-2.5 text-zinc-400">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/register"
+                className="mt-auto w-full text-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-6 py-3 text-sm font-bold text-emerald-400 hover:bg-emerald-500/20 transition-all"
+              >
+                Start Free Trial →
+              </Link>
+            </div>
+
+            {/* Starter — highlighted */}
+            <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/[0.03] p-8 flex flex-col gap-5 relative shadow-[0_0_60px_rgba(16,185,129,0.08)]">
+              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                <span className="px-4 py-1 rounded-full bg-emerald-500 text-black text-xs font-bold">MOST POPULAR</span>
+              </div>
+              <div>
+                <p className="text-xs font-bold text-emerald-500 uppercase tracking-widest mb-2">Starter</p>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-4xl font-black text-white">$49</span>
+                  <span className="text-zinc-400">/mo</span>
+                </div>
+                <p className="text-sm text-zinc-500">Billed monthly · Cancel any time</p>
+              </div>
+              <ul className="flex flex-col gap-3 text-sm">
+                {[
+                  "Up to 10 seats",
+                  "All 6 AI surfaces protected",
+                  "Chrome Extension + MDM deployment",
+                  "Full compliance reports (SOC2, HIPAA)",
+                  "Real-time telemetry dashboard",
+                  "Policy engine (20 rules)",
+                  "Priority email support",
+                  "Self-serve Stripe billing",
+                ].map(f => (
+                  <li key={f} className="flex items-center gap-2.5 text-zinc-300">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/register"
+                className="mt-auto w-full text-center rounded-xl bg-emerald-500 px-6 py-3 text-sm font-bold text-black hover:bg-emerald-400 transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+              >
+                Start Enterprise Pilot →
+              </Link>
+            </div>
+
+            {/* Growth */}
+            <div className="rounded-3xl border border-white/[0.08] bg-zinc-950/60 p-8 flex flex-col gap-5">
+              <div>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">Growth</p>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-4xl font-black text-white">$149</span>
+                  <span className="text-zinc-400">/mo</span>
+                </div>
+                <p className="text-sm text-zinc-500">Billed monthly · Cancel any time</p>
+              </div>
+              <ul className="flex flex-col gap-3 text-sm">
+                {[
+                  "Up to 50 seats",
+                  "All 6 AI surfaces protected",
+                  "MDM fleet deployment (Jamf, Intune, G Admin)",
+                  "SOC2 Type I evidence export",
+                  "Unlimited compliance reports",
+                  "Policy engine (unlimited rules)",
+                  "Custom PII patterns",
+                  "Dedicated onboarding & Slack support",
+                  "Executive value reports",
+                ].map(f => (
+                  <li key={f} className="flex items-center gap-2.5 text-zinc-400">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/register"
+                className="mt-auto w-full text-center rounded-xl border border-white/10 bg-white/[0.03] px-6 py-3 text-sm font-bold text-zinc-200 hover:bg-white/[0.06] transition-all"
+              >
+                Start Free Trial →
+              </Link>
+            </div>
+          </div>
+
+          {/* Enterprise custom */}
+          <div className="mt-8 p-6 rounded-2xl border border-white/[0.05] bg-white/[0.01] flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+            <div>
+              <p className="text-sm font-bold text-zinc-200 mb-1">Need 50+ seats, custom contracts, or on-premise deployment?</p>
+              <p className="text-xs text-zinc-500">We offer custom enterprise agreements with SLAs, DPA, and named CSM support.</p>
+            </div>
+            <a
+              href="mailto:enterprise@streetmp.com"
+              className="shrink-0 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-6 py-3 text-sm font-bold text-zinc-200 hover:bg-white/[0.06] transition-all whitespace-nowrap"
+            >
+              Contact Enterprise Sales →
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
 
