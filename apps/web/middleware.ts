@@ -2,9 +2,11 @@
  * @file middleware.ts
  * @description Next.js Edge Middleware — Auth guard + route hardening.
  *
- * ROOT CAUSE FIX: withAuth() returns raw JSON {"error":"Unauthorized"} for
- * browser navigations when token is missing. Replaced with manual getToken()
- * logic that redirects browsers to /login and returns 401 JSON only for /api routes.
+ * Phase 1 fixes:
+ * - Exclude /api/auth/** from auth guard so NextAuth callbacks are NEVER blocked
+ * - Exclude /login, /register from redirect loop
+ * - Exclude homepage / and all public pages from auth guard
+ * - Matcher updated to cover ALL routes (public path check is done in-middleware)
  */
 
 import { getToken }         from "next-auth/jwt";
@@ -16,6 +18,42 @@ const CTRL_PREFIX        = "/dashboard/ctrl-titan-9x2k";
 const CTRL_API_PREFIX    = "/api/ctrl-titan-9x2k";
 const OLD_ADMIN_PREFIXES = ["/dashboard/admin", "/admin"];
 const OLD_API_ADMIN      = "/api/admin";
+
+// ── Public paths — NEVER require auth ─────────────────────────────────────────
+// /api/auth MUST be first — NextAuth callbacks cannot be blocked
+const PUBLIC_PREFIXES = [
+  "/api/auth",        // NextAuth callbacks — CRITICAL: never block
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/onboard",
+  "/waitlist",
+  "/verify",
+  "/extension",
+  "/scan",
+  "/stp",
+  "/sdk",
+  "/legal",
+  "/terms",
+  "/privacy",
+  "/neutrality",
+  "/deploy-fast",
+  "/docs",
+  "/pricing",
+  "/marketplace",
+  "/enterprise",
+  "/deployment",
+  "/developers",
+  "/store",
+  "/robots.txt",
+  "/sitemap.xml",
+];
+
+function isPublicPath(pathname: string): boolean {
+  if (pathname === "/") return true;
+  return PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
 
 // ── Edge-safe IP matching ─────────────────────────────────────────────────────
 function isAllowedIp(ip: string, allowlistRaw: string): boolean {
@@ -53,6 +91,11 @@ function isDevBypass(): boolean {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // ── 0. Always allow public paths (includes homepage + NextAuth) ───────────
+  if (isPublicPath(pathname)) {
+    return NextResponse.next();
+  }
+
   // ── 1. Tombstone old /admin/* paths → silent 404 ──────────────────────────
   if (
     OLD_ADMIN_PREFIXES.some((p) => pathname.startsWith(p)) ||
@@ -72,11 +115,10 @@ export async function middleware(req: NextRequest) {
       const isApiRoute = pathname.startsWith("/api/");
 
       if (isApiRoute) {
-        // API callers (fetch/axios): return structured 401
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
 
-      // Browser navigation: ALWAYS redirect to /login — never return raw JSON
+      // Browser navigation: redirect to /login with callbackUrl
       const loginUrl = new URL("/login", req.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
@@ -91,7 +133,7 @@ export async function middleware(req: NextRequest) {
       const allowlist = process.env.CTRL_ALLOWED_IPS ?? "";
 
       if (!isAllowedIp(clientIp, allowlist)) {
-        return new NextResponse(null, { status: 404 }); // Don't confirm route exists
+        return new NextResponse(null, { status: 404 });
       }
 
       const role = token.role as string | undefined;
@@ -106,10 +148,10 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/dashboard/:path*",
-    "/admin/:path*",
-    "/api/admin/:path*",
-    "/ctrl-titan-9x2k/:path*",
-    "/api/ctrl-titan-9x2k/:path*",
+    /*
+     * Match ALL request paths EXCEPT Next.js internals and static assets.
+     * Public path logic is handled inside middleware via isPublicPath().
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2)$).*)",
   ],
 };

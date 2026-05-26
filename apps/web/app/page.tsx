@@ -344,6 +344,83 @@ export default function HomePage() {
 
       <NemoClawHighlight />
 
+      {/* ── Phase 3: Chrome Extension Activation Section ─────────── */}
+      <section id="extension" className="relative py-20 lg:py-28 px-6 bg-[#050508] border-t border-white/[0.04] overflow-hidden">
+        {/* Background glow */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-emerald-500/[0.04] blur-[100px] rounded-full" />
+        </div>
+
+        <div className="mx-auto max-w-7xl relative z-10">
+          <div className="text-center mb-12">
+            <p className="text-[11px] font-mono uppercase tracking-[0.3em] text-emerald-500 mb-4">One-Click Setup</p>
+            <h2 className="text-3xl md:text-5xl font-bold tracking-tighter text-white mb-4">
+              Install. Protect. Done.
+            </h2>
+            <p className="text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+              No configuration. No IT ticket. No workflow changes.<br />
+              Install the extension and your team is protected instantly.
+            </p>
+          </div>
+
+          {/* Compatibility grid */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
+            {[
+              { name: "ChatGPT", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/25" },
+              { name: "Claude",  color: "text-violet-400",  bg: "bg-violet-500/10 border-violet-500/25"  },
+              { name: "Gemini",  color: "text-blue-400",    bg: "bg-blue-500/10 border-blue-500/25"      },
+              { name: "Slack AI",color: "text-amber-400",   bg: "bg-amber-500/10 border-amber-500/25"    },
+              { name: "Copilot", color: "text-sky-400",     bg: "bg-sky-500/10 border-sky-500/25"        },
+              { name: "Docs AI", color: "text-zinc-300",    bg: "bg-white/[0.04] border-white/10"        },
+            ].map((tool) => (
+              <span key={tool.name} className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-semibold ${tool.bg} ${tool.color}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                {tool.name}
+              </span>
+            ))}
+          </div>
+
+          {/* Steps */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
+            {[
+              { step: "01", title: "Install Extension", desc: "Click install — it takes 8 seconds. No account needed to start.", icon: "🔌" },
+              { step: "02", title: "Open Any AI Tool", desc: "Open ChatGPT, Claude, Gemini, or any tool your team uses.", icon: "🌐" },
+              { step: "03", title: "You're Protected", desc: "StreetMP silently monitors and blocks data leaks. Audit logs appear in your dashboard.", icon: "🛡️" },
+            ].map((s) => (
+              <div key={s.step} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-6 text-center hover:border-emerald-500/30 hover:bg-emerald-500/[0.03] transition-all group">
+                <div className="text-3xl mb-3">{s.icon}</div>
+                <p className="text-[10px] font-mono text-emerald-500 tracking-widest mb-2">Step {s.step}</p>
+                <h3 className="text-base font-bold text-white mb-2">{s.title}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="https://chrome.google.com/webstore"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 rounded-2xl bg-emerald-500 px-8 py-4 text-base font-bold text-black transition-all hover:bg-emerald-400 hover:scale-[1.02] shadow-[0_0_30px_rgba(16,185,129,0.35)]"
+            >
+              <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+              Install Chrome Extension — Free
+            </a>
+            <Link
+              href="/dashboard/welcome"
+              className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/[0.03] px-8 py-4 text-base font-bold text-zinc-300 transition-all hover:bg-white/[0.06] hover:text-white"
+            >
+              View Enterprise Dashboard
+            </Link>
+          </div>
+
+          <p className="text-center text-xs text-zinc-600 mt-6">
+            Free for up to 5 users · No credit card · SOC2 compliant · Chrome Enterprise compatible
+          </p>
+        </div>
+      </section>
+
       {/* ── Why The World Needs This ────────────────────────────── */}
       <section id="why-it-matters" className="relative py-20 lg:py-32 px-6 bg-[#080808]">
         <div className="mx-auto max-w-7xl">

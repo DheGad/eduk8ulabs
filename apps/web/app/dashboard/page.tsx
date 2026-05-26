@@ -265,7 +265,7 @@ function HcqReputationBar({
           <div className={`w-2 h-2 rounded-full ${tier.dot} shadow-sm`} />
           <div>
             <p className="text-[10px] text-white/30 uppercase tracking-widest font-medium leading-none mb-0.5">
-              HCQ Score
+              Trust Score
             </p>
             {loading ? (
               <div className="h-5 w-14 rounded bg-white/[0.06] animate-pulse" />
@@ -692,7 +692,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-8 ml-auto border-l border-white/10 pl-8">
               {[
                 { label: "Queries Routed", value: hcqProfile.total_executions, color: "text-white" },
-                { label: "Math Proofs", value: hcqProfile.successful_first_try, color: "text-emerald-400" },
+                { label: "First-Try Rate", value: hcqProfile.successful_first_try, color: "text-emerald-400" },
                 { label: "Policy Breaches", value: hcqProfile.hallucination_faults, color: hcqProfile.hallucination_faults > 0 ? "text-rose-400" : "text-neutral-500" },
               ].map(s => (
                 <div key={s.label} className="flex flex-col">
