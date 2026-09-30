@@ -1,128 +1,66 @@
-# Streetmp OS 🚀
+# EDUK8U Ecosystem & FLOW OS — Master Enterprise Platform
 
-**The AI Career Intelligence Platform — Phase 1 MVM**
-
-> BYOK · Deterministic JSON · Full Cost Transparency
-
----
-
-## Quick Start
-
-### Prerequisites
-- Node.js ≥ 20
-- npm ≥ 10
-- Docker Desktop (for PostgreSQL)
-
-### 1. Environment Setup
-
-```bash
-# Copy the template and fill in your values
-cp .env.example .env
-```
-
-**Required variables in `.env`:**
-
-```bash
-# Master encryption key (64-char hex)
-STREETMP_MASTER_KEY=$(openssl rand -hex 32)
-
-# JWT signing secret (min 32 chars)
-JWT_SECRET=$(openssl rand -hex 32)
-
-# Internal service authentication
-INTERNAL_ROUTER_SECRET=$(openssl rand -hex 32)
-
-# Database
-DB_USER=streetmp
-DB_PASS=your_secure_password
-DB_NAME=streetmp_os
-DB_HOST=localhost
-DB_PORT=5432
-```
-
-> **Note:** This monorepo uses a single root `.env` file. All 5 microservices
-> load it automatically via `@streetmp-os/config/env` — no scattered `.env` files.
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Boot the Full Stack
-
-```bash
-# One command boots PostgreSQL + all 6 servers simultaneously
-npm run dev
-```
-
-This executes:
-1. `docker-compose up -d` → PostgreSQL on port 5432
-2. `sleep 3` → Wait for Postgres to accept connections
-3. `turbo run dev` → All 6 dev servers in parallel
+[![Architecture](https://img.shields.io/badge/Architecture-Turborepo%20Monorepo-blue.svg)](https://turbo.build/)
+[![Live Target](https://img.shields.io/badge/Production%20Live-http%3A%2F%2F64.176.80.212%3A8080-brightgreen.svg)](http://64.176.80.212:8080)
+[![Compliance](https://img.shields.io/badge/Compliance-ASQA%20%7C%20Standards%20for%20RTOs%202025-blueviolet.svg)](#-project-1-eduk8u-work-placement-intelligence-platform-release-10)
+[![Lead QA](https://img.shields.io/badge/Lead%20QA-Ameer%20Danial-orange.svg)](#-qa-validation-handover-for-ameer-danial)
 
 ---
 
-## Service Architecture
+## 🎯 Master Navigation: Solving QA & Stakeholder Ambiguity
 
-```
-Layer 1 (Next.js)
-  └── apps/web                  → http://localhost:3000
+To ensure immediate clarity for **Ameer Danial (Lead QA Engineer)**, technical leadership, and auditors, this repository serves as the **Master Core Monorepo for the EDUK8U and FLOW OS Technology Stack**.
 
-Layer 2 (OS Kernel Microservices)
-  ├── auth-service              → http://localhost:4001
-  ├── vault-service             → http://localhost:4002
-  ├── router-service            → http://localhost:4000
-  ├── enforcer-service          → http://localhost:4003
-  └── usage-service             → http://localhost:4004
+The platform ecosystem comprises three clearly delineated projects:
 
-Infrastructure
-  └── postgres-vault (Docker)  ← localhost:5432
-```
+| # | Project Name | Description & Primary Focus | Target Environment & URL | Repository / Location | Dedicated Documentation |
+|---|---|---|---|---|---|
+| **1** | **EDUK8U Work Placement Platform** | Australian RTO Work Placement Intelligence & Compliance Platform (Standards for RTOs 2025, CRICOS 500). Full logbooks, student/trainer/supervisor portals, and ASQA audit exports. | **Live Production VPS:**<br>[](http://64.176.80.212:8080) | <br>*(Branch: )* | [](./EDUK8U_WORK_PLACEMENT_PLATFORM.md) |
+| **2** | **FLOW OS (Enterprise Kernel)** | Declarative state-machine orchestration engine, AI Gateway, BullMQ background processor, Titan HQ, and cryptographic execution verifier. | **Turborepo Monorepo:**<br>,  | <br>*(Branch: )* | [](./QA_MASTER_HANDOVER_GUIDE.md) |
+| **3** | **HRManager4U.ai** | Multi-tenant AI-Powered Global Human Resource & Statutory Compliance Management Platform (Malaysia Employment Act 1955 & AU Fair Work Act 2009). | **Live Production VPS:**<br>[](http://66.42.62.57) | [](https://github.com/DheGad/hrmanager)<br>*(Branch: )* | [HRManager4U QA Guide](https://github.com/DheGad/hrmanager/blob/main/QA_HANDOVER_GUIDE.md) |
 
 ---
 
-## Database Commands
+## 🏛️ Project 1: EDUK8U Work Placement Intelligence Platform (Release 1.0)
 
-```bash
-npm run db:up      # Start PostgreSQL
-npm run db:down    # Stop (data preserved)
-npm run db:logs    # Tail PostgreSQL logs
-npm run db:reset   # ⚠️  Wipe all data and restart
-npm run db:shell   # psql interactive shell
-```
+The **EDUK8U Work Placement Intelligence Platform** is fully deployed, active, and operational at:
+👉 **[](http://64.176.80.212:8080)**
 
----
+### 🔑 Verified Demo Credentials for Independent QA Validation
 
-## Development Commands
+All five user tiers are pre-seeded in the live production PostgreSQL database:
 
-```bash
-npm run dev            # Full stack (DB + all services)
-npm run dev:services   # Services only (skip Docker)
-npm run build          # Build all workspaces
-npm run type-check     # TypeScript check all workspaces
-npm run lint           # Lint all workspaces
-npm run clean          # Clean all build artifacts
-```
+| Role | Email | Password | Primary QA Verification Focus |
+|---|---|---|---|
+| **Super Admin** |  |  | Full platform governance, tenant configuration, system logs, master compliance audits. |
+| **College Admin** |  |  | RTO institution management, student enrolments, course setup, trainer allocations. |
+| **Trainer / Assessor** |  |  | Student competency assessments, logbook reviews, workplace visit audits, verification sign-offs. |
+| **Student** |  |  | Placement onboarding, geofenced timesheet check-in, competency evidence uploads, supervisor signatures. |
+| **Host Supervisor** |  |  | Host facility profile, timesheet approvals, weekly student performance evaluations. |
+
+*For complete end-to-end testing workflows and API schemas, see [](./EDUK8U_WORK_PLACEMENT_PLATFORM.md).*
 
 ---
 
-## Security
+## ⚡ Project 2: FLOW OS — Enterprise Orchestration & Sovereign Kernel
 
-| Secret | How to Generate |
-|--------|----------------|
-| `STREETMP_MASTER_KEY` | `openssl rand -hex 32` |
-| `JWT_SECRET` | `openssl rand -hex 32` |
-| `INTERNAL_ROUTER_SECRET` | `openssl rand -hex 32` |
+FLOW OS is built inside this monorepo as a high-performance **Turborepo** architecture designed to coordinate work between disparate enterprise applications without replacing them.
 
-> ⚠️ **Never commit `.env` to version control.** It is in `.gitignore`.
+### Monorepo Structure
+
+
 
 ---
 
-## Phase 2 Roadmap
+## 📋 Project 3: HRManager4U.ai
 
-- [ ] httpOnly cookie auth (eliminate localStorage XSS exposure)
-- [ ] Usage summary dashboard
-- [ ] HCQ (Hallucination Correction Quotient) scoring
-- [ ] Docker Compose for all services (full containerization)
-- [ ] Rate limiting per tier (free: 100/day, pro: 10k/day)
+HRManager4U.ai is hosted in its dedicated repository [](https://github.com/DheGad/hrmanager) and live at [](http://66.42.62.57). 
+
+- **Primary Demo Login:**  / 
+- **Modules Under Test:** 9-Step Onboarding Wizard, Employee 360° Dossier, Statutory Compliance Radar (MY/AU), Leave Ledger, and Human-in-the-Loop AI Assistant.
+
+---
+
+## 🧑‍💻 QA Validation Handover for Ameer Danial
+
+Refer to [](./QA_MASTER_HANDOVER_GUIDE.md) for the centralized, cross-project QA test execution checklists, expected results, defect severity ratings, and acceptance reporting guidelines.
